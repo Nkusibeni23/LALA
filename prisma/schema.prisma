@@ -59,19 +59,19 @@ model Session {
   expires      DateTime
 }
 
-model Property {
-  id          String    @id @default(cuid())
-  title       String
-  description String
-  price       Float
-  location    String
-  images      String[]
-  amenities   String[]
-  hostId      String
-  host        User      @relation(fields: [hostId], references: [id])
-  bookings    Booking[]
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
+export interface Property {
+  id: string;
+  title: string;
+  description: string;
+  price: number;
+  location: string;
+  images: string[];
+  amenities: string[];
+  rooms: number;
+  bathrooms: number;
+  hostId: string;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 model Booking {
@@ -91,6 +91,5 @@ model VerificationToken {
   identifier String
   token      String   @unique
   expires    DateTime
-
   @@unique([identifier, token])
 }
