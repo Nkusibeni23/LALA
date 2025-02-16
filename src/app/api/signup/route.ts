@@ -1,19 +1,17 @@
 import { NextResponse } from "next/server";
-import { Prisma, PrismaClient } from "@prisma/client";
 import bcrypt from "bcrypt";
-
-const prisma = new PrismaClient();
+import prisma from "@/lib/prisma";
 
 export async function POST(req: Request) {
   try {
-    const { name, email, password, role = "RENTER" } = await req.json();
+    const body = await req.json();
 
-    if (!email || !password || !name) {
-      return NextResponse.json(
-        { error: "All fields are required." },
-        { status: 400 }
-      );
+    const errorMessage = validateUserInput(body);
+    if (errorMessage) {
+      return NextResponse.json({ error: errorMessage }, { status: 400 });
     }
+
+    const { name, email, password, role = "RENTER" } = body;
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
@@ -24,23 +22,38 @@ export async function POST(req: Request) {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
+
     const newUser = await prisma.user.create({
       data: {
-        email,
         name,
+        email,
         password: hashedPassword,
         role,
-      } as Prisma.UserUncheckedCreateInput,
+      },
     });
 
-    return NextResponse.json({
-      message: "User registered successfully.",
-      user: newUser,
-    });
-  } catch (error) {
+    return NextResponse.json(
+      { message: "User registered successfully.", user: newUser },
+      { status: 201 }
+    );
+  } catch (error: any) {
+    console.error("Signup Error:", error);
     return NextResponse.json(
       { error: "Error creating user." },
       { status: 500 }
     );
   }
+}
+
+function validateUserInput(data: any) {
+  if (!data.email || !data.password || !data.name) {
+    return "All fields are required.";
+  }
+  if (data.password.length < 6) {
+    return "Password must be at least 6 characters.";
+  }
+  if (!["RENTER", "HOST"].includes(data.role)) {
+    return "Invalid role. Choose either 'RENTER' or 'HOST'.";
+  }
+  return null;
 }

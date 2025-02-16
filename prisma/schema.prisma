@@ -13,18 +13,26 @@ enum Role {
   HOST
 }
 
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELED
+}
+
 model User {
-  id            String    @id @default(cuid())
+  id            String     @id @default(cuid())
   name          String?
-  email         String    @unique
-  password      String?  
+  email         String     @unique
+  password      String?
   emailVerified DateTime?
   image         String?
-  role          Role      @default(RENTER)
+  role          Role       @default(RENTER)
   accounts      Account[]
   sessions      Session[]
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  properties    Property[] 
+  bookings      Booking[]  
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
 }
 
 model Account {
@@ -34,8 +42,8 @@ model Account {
   type              String
   provider          String
   providerAccountId String  @unique
-  refresh_token     String?  
-  access_token      String?  
+  refresh_token     String?
+  access_token      String?
   expires_at        Int?
   token_type        String?
   scope             String?
@@ -49,6 +57,34 @@ model Session {
   userId       String
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   expires      DateTime
+}
+
+model Property {
+  id          String    @id @default(cuid())
+  title       String
+  description String
+  price       Float
+  location    String
+  images      String[]
+  amenities   String[]
+  hostId      String
+  host        User      @relation(fields: [hostId], references: [id])
+  bookings    Booking[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+}
+
+model Booking {
+  id         String        @id @default(cuid())
+  checkIn    DateTime
+  checkOut   DateTime
+  status     BookingStatus @default(PENDING)
+  renterId   String
+  renter     User         @relation(fields: [renterId], references: [id])
+  propertyId String
+  property   Property     @relation(fields: [propertyId], references: [id])
+  createdAt  DateTime     @default(now())
+  updatedAt  DateTime     @updatedAt
 }
 
 model VerificationToken {
