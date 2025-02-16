@@ -80,7 +80,7 @@ export function Navbar({
               <Input
                 type="text"
                 placeholder="Search properties..."
-                className="pl-10 w-44 md:w-96 bg-gray-50"
+                className="pl-10 w-44 md:w-96 bg-gray-50 focus:ring-1 focus:ring-gray-300 outline-none"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />

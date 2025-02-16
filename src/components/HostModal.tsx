@@ -176,7 +176,7 @@ const HostPropertyModal: React.FC<HostPropertyModalProps> = ({
                       location: e.target.value,
                     }))
                   }
-                  className="h-12"
+                  className="h-12 focus:ring-1 focus:ring-gray-300 outline-none"
                 />
               </div>
             </div>
@@ -203,7 +203,7 @@ const HostPropertyModal: React.FC<HostPropertyModalProps> = ({
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, title: e.target.value }))
                   }
-                  className="h-12"
+                  className="h-12 focus:ring-1 focus:ring-gray-300 outline-none"
                 />
               </div>
               <div className="space-y-2">
@@ -217,7 +217,7 @@ const HostPropertyModal: React.FC<HostPropertyModalProps> = ({
                       description: e.target.value,
                     }))
                   }
-                  className="h-32 resize-none"
+                  className="h-32 resize-none focus:ring-1 focus:ring-gray-300 outline-none"
                 />
               </div>
             </div>
@@ -334,7 +334,7 @@ const HostPropertyModal: React.FC<HostPropertyModalProps> = ({
                   onChange={(e) =>
                     setFormData((prev) => ({ ...prev, price: e.target.value }))
                   }
-                  className="h-12"
+                  className="h-12 focus:ring-1 focus:ring-gray-300 outline-none"
                 />
               </div>
               <div className="grid grid-cols-2 gap-4">
@@ -350,7 +350,7 @@ const HostPropertyModal: React.FC<HostPropertyModalProps> = ({
                         rooms: e.target.value,
                       }))
                     }
-                    className="h-12"
+                    className="h-12 focus:ring-1 focus:ring-gray-300 outline-none"
                   />
                 </div>
                 <div className="space-y-2">
@@ -365,7 +365,7 @@ const HostPropertyModal: React.FC<HostPropertyModalProps> = ({
                         bathrooms: e.target.value,
                       }))
                     }
-                    className="h-12"
+                    className="h-12 focus:ring-1 focus:ring-gray-300 outline-none"
                   />
                 </div>
               </div>
@@ -391,8 +391,11 @@ const HostPropertyModal: React.FC<HostPropertyModalProps> = ({
               </Button>
             )}
             <Button
+              variant="outline"
               onClick={step === totalSteps ? onClose : handleNext}
-              className={`gap-2 ${step === 1 ? "w-full" : "ml-auto"}`}
+              className={`gap-2 text-black hover:bg-black hover:text-white transition-all duration-300 ${
+                step === 1 ? "w-full" : "ml-auto"
+              }`}
             >
               {step === totalSteps ? "Finish" : "Next"}
               {step !== totalSteps && <ArrowRight className="w-4 h-4" />}
