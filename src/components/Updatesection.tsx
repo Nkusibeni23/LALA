@@ -7,7 +7,7 @@ export default function Updatesection() {
     <div className="lg:col-span-1">
       <Card className="sticky top-8">
         <CardHeader>
-          <CardTitle>Manage Property</CardTitle>
+          <CardTitle>Manage Your Place</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <Button
