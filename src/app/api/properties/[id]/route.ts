@@ -11,16 +11,15 @@ export async function GET(
     const property = await prisma.property.findUnique({
       where: { id: params.id },
     });
-
     if (!property) {
       return NextResponse.json(
         { error: "Property not found" },
         { status: 404 }
       );
     }
-
     return NextResponse.json(property);
   } catch (error) {
+    console.error("Error fetching property:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

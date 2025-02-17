@@ -31,3 +31,37 @@ export interface HouseCardProps {
     location: string;
   };
 }
+
+export enum Role {
+  RENTER = "RENTER",
+  HOST = "HOST",
+  ADMIN = "ADMIN",
+}
+
+export interface User {
+  id: string;
+  name?: string;
+  email: string;
+  password?: string;
+  emailVerified?: Date;
+  image?: string;
+  role: Role;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface Booking {
+  id: string;
+  propertyId: string;
+  property: Property;
+  userId: string;
+  user: User;
+  startDate: Date;
+  endDate: Date;
+  totalPrice: number;
+  status: "PENDING" | "CONFIRMED" | "CANCELLED";
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export type Property = House;

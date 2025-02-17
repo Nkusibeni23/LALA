@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
 import { HouseCard } from "@/components/HouseCard";
 import { Navbar } from "@/components/Navbar";
 import { Pagination } from "@/components/Pagination";
@@ -78,7 +79,10 @@ export default function HomePage() {
                 .map((_, index) => <SkeletonCard key={index} />)
             ) : currentHouses.length > 0 ? (
               currentHouses.map((house) => (
-                <HouseCard key={house.id} house={house} />
+                <Link key={house.id} href={`/properties/${house.id}`}>
+                  {" "}
+                  <HouseCard house={house} />
+                </Link>
               ))
             ) : (
               <p className="p-4 font-bold text-black text-center text-lg">

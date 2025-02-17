@@ -42,7 +42,7 @@ export const HouseCard = ({ house }: HouseCardProps) => {
             ${house.price.toLocaleString()}
           </p>
 
-          {/* Properties Details */}
+          {/* Properties Details*/}
           <div className="flex justify-between text-sm text-gray-600 mt-3">
             <span className="flex items-center gap-1">
               <Bed className="h-4 w-4 text-gray-400" /> {house.rooms} Beds
