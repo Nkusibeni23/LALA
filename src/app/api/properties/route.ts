@@ -53,3 +53,17 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+
+export async function GET(req: NextRequest) {
+  try {
+    const properties = await prisma.property.findMany();
+
+    return NextResponse.json(properties);
+  } catch (error) {
+    console.error("Error fetching properties:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}

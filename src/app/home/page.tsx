@@ -7,6 +7,7 @@ import { Pagination } from "@/components/Pagination";
 import { Sidebar } from "@/components/SideBar";
 import { House } from "@/types/HomePage";
 import SkeletonCard from "@/components/SkeletonCard";
+import api from "@/lib/axios";
 
 export default function HomePage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -14,6 +15,7 @@ export default function HomePage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [isMobile, setIsMobile] = useState(false);
   const [houses, setHouses] = useState<House[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const handleResize = () => {
@@ -25,19 +27,19 @@ export default function HomePage() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  useEffect(() => {
-    const generatedHouses: House[] = Array.from({ length: 30 }, (_, i) => ({
-      id: i + 1,
-      title: `Modern House ${i + 1}`,
-      image: "/api/placeholder/400/300",
-      price: (i + 1) * 1000,
-      beds: Math.floor(Math.random() * 3) + 2,
-      baths: Math.floor(Math.random() * 2) + 1,
-      sqft: (Math.floor(Math.random() * 1000) + 1000).toString(),
-      location: "Downtown Area",
-    }));
+  const fetchHouses = async () => {
+    try {
+      const { data } = await api.get<House[]>("/properties");
+      setHouses(data);
+    } catch (error) {
+      console.error("Error fetching properties:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    setHouses(generatedHouses);
+  useEffect(() => {
+    fetchHouses();
   }, []);
 
   const housesPerPage = 8;
@@ -70,7 +72,7 @@ export default function HomePage() {
 
         <main className="flex-1 p-4 lg:p-6 overflow-y-auto">
           <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
-            {houses.length === 0 ? (
+            {loading ? (
               Array(8)
                 .fill(null)
                 .map((_, index) => <SkeletonCard key={index} />)

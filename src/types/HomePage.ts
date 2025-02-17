@@ -1,11 +1,16 @@
 export interface House {
   id: number;
   title: string;
-  image: string;
+  images: string[];
   price: number;
   beds: number;
-  baths: number;
-  sqft: string;
+  bathrooms: number;
+  rooms: number;
+  description: string;
+  amenities: string[];
+  hostId: number;
+  hostName: string;
+  category: string;
   location: string;
 }
 
@@ -13,11 +18,16 @@ export interface HouseCardProps {
   house: {
     id: number;
     title: string;
-    image: string;
+    images: string[];
     price: number;
     beds: number;
-    baths: number;
-    sqft: string;
+    bathrooms: number;
+    rooms: number;
+    description: string;
+    amenities: string[];
+    hostId: number;
+    hostName: string;
+    category: string;
     location: string;
   };
 }
