@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { notFound, useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import api from "@/lib/axios";
 import { Property, User } from "@/types/HomePage";
 import {
@@ -26,6 +27,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import BookingSection from "@/components/BookingSection";
 import SpinnerLoader from "@/components/SpinnerLoader";
+import Updatesection from "@/components/Updatesection";
 
 const amenityIcons: { [key: string]: JSX.Element } = {
   wifi: <Wifi className="h-5 w-5 text-primary" />,
@@ -53,6 +55,7 @@ async function fetchPropertyWithHost(id: string) {
 
 export default function PropertyPage({ params }: { params: { id: string } }) {
   const router = useRouter();
+  const { data: session } = useSession();
   const [property, setProperty] = useState<(Property & { host: User }) | null>(
     null
   );
@@ -61,6 +64,7 @@ export default function PropertyPage({ params }: { params: { id: string } }) {
   React.useEffect(() => {
     const fetchData = async () => {
       const data = await fetchPropertyWithHost(params.id);
+
       setProperty(data);
       setLoading(false);
     };
@@ -79,6 +83,9 @@ export default function PropertyPage({ params }: { params: { id: string } }) {
     ? new Date(property.host.createdAt).getFullYear()
     : new Date().getFullYear();
 
+  const isHost =
+    session?.user?.role === "HOST" && session.user.id === property.host?.id;
+
   return (
     <div className="container min-h-screen">
       <div className="mx-auto p-4 lg:p-8 max-w-7xl">
@@ -92,7 +99,6 @@ export default function PropertyPage({ params }: { params: { id: string } }) {
           Back to Properties
         </Button>
 
-        {/* Header Section */}
         <div className="mb-8 text-center">
           <h1 className="text-4xl font-bold mb-2">{property.title}</h1>
           <div className="flex items-center justify-center gap-2 text-gray-600">
@@ -105,9 +111,7 @@ export default function PropertyPage({ params }: { params: { id: string } }) {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Main Content */}
           <div className="lg:col-span-2">
-            {/* Image Gallery */}
             <Card className="mb-8">
               <CardContent className="p-6">
                 <div className="grid grid-cols-2 gap-4">
@@ -226,6 +230,9 @@ export default function PropertyPage({ params }: { params: { id: string } }) {
                         <h3 className="text-lg font-semibold">
                           {property.host?.name || "Anonymous Host"}
                         </h3>
+                        <p className="text-gray-600 mb-2 text-sm">
+                          {property.host?.email || "No email provided"}
+                        </p>
                         <p className="text-gray-600">
                           Member since {hostJoinYear}
                         </p>
@@ -237,8 +244,7 @@ export default function PropertyPage({ params }: { params: { id: string } }) {
             </Tabs>
           </div>
 
-          {/* Booking Section */}
-          <BookingSection property={property} />
+          {isHost ? <Updatesection /> : <BookingSection property={property} />}
         </div>
       </div>
     </div>

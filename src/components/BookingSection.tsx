@@ -130,7 +130,9 @@ export default function BookingSection({ property }: { property: any }) {
             <div className="p-4 bg-gray-50 rounded-lg">
               <div className="flex justify-between mb-2">
                 <span>Price per month</span>
-                <span>${property.price.toLocaleString()}</span>
+                <span className="font-bold">
+                  ${property.price.toLocaleString()}
+                </span>
               </div>
             </div>
 
