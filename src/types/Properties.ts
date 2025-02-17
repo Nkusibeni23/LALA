@@ -26,3 +26,7 @@ export interface PropertiesData {
   amenities: string[];
   images: string[];
 }
+
+export interface UploadResponse {
+  urls: string[];
+}

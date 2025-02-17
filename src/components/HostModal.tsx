@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Dialog,
   DialogContent,
@@ -39,6 +39,8 @@ import {
   HostPropertyModalProps,
   PropertiesData,
 } from "@/types/Properties";
+import api from "@/lib/axios";
+import ValidationCard from "./ValidationCard";
 
 const categories: Category[] = [
   { id: "beach", name: "Beach", icon: Palmtree },
@@ -83,6 +85,10 @@ const HostPropertyModal: React.FC<HostPropertyModalProps> = ({
     amenities: [],
     images: [],
   });
+  const [validation, setValidation] = useState<{
+    type: "success" | "error" | "warning";
+    message: string;
+  } | null>(null);
 
   const handleNext = () => {
     setStep((prev) => prev + 1);
@@ -107,17 +113,113 @@ const HostPropertyModal: React.FC<HostPropertyModalProps> = ({
     }));
   };
 
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
-    if (files) {
-      const newImages = Array.from(files).map((file) =>
-        URL.createObjectURL(file)
-      );
-      setFormData((prev) => ({
-        ...prev,
-        images: [...prev.images, ...newImages],
-      }));
+    if (!files || files.length === 0) return;
+
+    const formData = new FormData();
+    Array.from(files).forEach((file) => {
+      formData.append("file", file);
+    });
+
+    try {
+      const response = await api.post<{ url: string }>("/upload", formData, {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      });
+
+      if (response.data.url) {
+        setFormData((prev) => ({
+          ...prev,
+          images: [...prev.images, response.data.url],
+        }));
+      }
+    } catch (error) {
+      console.error("Error uploading images:", error);
     }
+  };
+
+  const handleSubmit = async () => {
+    try {
+      const {
+        category,
+        title,
+        description,
+        price,
+        location,
+        images,
+        amenities,
+        rooms,
+        bathrooms,
+      } = formData;
+
+      const { data } = await api.post("/properties", {
+        category,
+        title,
+        description,
+        price: parseFloat(price),
+        location,
+        images,
+        amenities,
+        rooms: parseInt(rooms),
+        bathrooms: parseInt(bathrooms),
+      });
+
+      resetForm();
+      setStep(1);
+      setProgress(0);
+
+      setValidation({
+        type: "success",
+        message: "Property created successfully!",
+      });
+
+      setTimeout(() => {
+        onClose();
+      }, 3000);
+    } catch (error) {
+      console.error("Error submitting property:", error);
+      setValidation({
+        type: "error",
+        message: "Failed to create property. Please try again.",
+      });
+    }
+  };
+
+  const resetForm = () => {
+    setFormData({
+      category: "",
+      title: "",
+      description: "",
+      price: "",
+      location: "",
+      images: [],
+      amenities: [],
+      rooms: "",
+      bathrooms: "",
+    });
+  };
+
+  useEffect(() => {
+    if (validation) {
+      const timer = setTimeout(() => {
+        setValidation(null);
+      }, 3000);
+
+      return () => clearTimeout(timer);
+    }
+  }, [validation]);
+
+  const isNextDisabled = () => {
+    if (step === 2 && !formData.location) return true;
+    if (step === 4 && formData.images.length === 0) return true;
+    if (
+      step === 6 &&
+      (!formData.price || !formData.rooms || !formData.bathrooms)
+    )
+      return true;
+    return false;
   };
 
   const renderStep = () => {
@@ -269,6 +371,7 @@ const HostPropertyModal: React.FC<HostPropertyModalProps> = ({
                   </div>
                   <input
                     type="file"
+                    name="files"
                     multiple
                     accept="image/*"
                     className="hidden"
@@ -326,7 +429,7 @@ const HostPropertyModal: React.FC<HostPropertyModalProps> = ({
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>Price per night</Label>
+                <Label>Price per month</Label>
                 <Input
                   type="number"
                   placeholder="$"
@@ -392,7 +495,8 @@ const HostPropertyModal: React.FC<HostPropertyModalProps> = ({
             )}
             <Button
               variant="outline"
-              onClick={step === totalSteps ? onClose : handleNext}
+              onClick={step === totalSteps ? handleSubmit : handleNext}
+              disabled={isNextDisabled()}
               className={`gap-2 text-black hover:bg-black hover:text-white transition-all duration-300 ${
                 step === 1 ? "w-full" : "ml-auto"
               }`}
@@ -402,6 +506,9 @@ const HostPropertyModal: React.FC<HostPropertyModalProps> = ({
             </Button>
           </div>
         </div>
+        {validation && (
+          <ValidationCard type={validation.type} message={validation.message} />
+        )}
       </DialogContent>
     </Dialog>
   );
