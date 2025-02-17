@@ -25,8 +25,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import BookingSection from "@/components/BookingSection";
+import SpinnerLoader from "@/components/SpinnerLoader";
 
-// Amenity Icons Mapping
 const amenityIcons: { [key: string]: JSX.Element } = {
   wifi: <Wifi className="h-5 w-5 text-primary" />,
   tv: <Tv className="h-5 w-5 text-primary" />,
@@ -68,11 +68,7 @@ export default function PropertyPage({ params }: { params: { id: string } }) {
   }, [params.id]);
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
-      </div>
-    );
+    return <SpinnerLoader />;
   }
 
   if (!property) {
