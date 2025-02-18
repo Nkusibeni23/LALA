@@ -28,6 +28,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import BookingSection from "@/components/BookingSection";
 import SpinnerLoader from "@/components/SpinnerLoader";
 import Updatesection from "@/components/Updatesection";
+import UpdateSection from "@/components/Updatesection";
 
 const amenityIcons: { [key: string]: JSX.Element } = {
   wifi: <Wifi className="h-5 w-5 text-primary" />,
@@ -244,7 +245,11 @@ export default function PropertyPage({ params }: { params: { id: string } }) {
             </Tabs>
           </div>
 
-          {isHost ? <Updatesection /> : <BookingSection property={property} />}
+          {isHost ? (
+            <UpdateSection propertyId={params.id} />
+          ) : (
+            <BookingSection property={property} />
+          )}
         </div>
       </div>
     </div>
