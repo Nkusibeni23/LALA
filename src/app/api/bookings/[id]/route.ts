@@ -39,7 +39,7 @@ export async function PUT(
     });
 
     return NextResponse.json(updatedBooking);
-  } catch (_error) {
+  } catch {
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

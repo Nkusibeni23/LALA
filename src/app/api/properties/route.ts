@@ -45,8 +45,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(property, { status: 201 });
-  } catch (_error) {
-    console.error("Error creating property:", _error);
+  } catch {
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
@@ -59,8 +58,7 @@ export async function GET() {
     const properties = await prisma.property.findMany();
 
     return NextResponse.json(properties);
-  } catch (_error) {
-    console.error("Error fetching properties:", _error);
+  } catch {
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

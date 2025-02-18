@@ -16,7 +16,7 @@ export async function GET() {
     });
 
     return NextResponse.json(bookings);
-  } catch (_error) {
+  } catch {
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
@@ -80,7 +80,7 @@ export async function POST(req: NextRequest) {
     });
 
     return NextResponse.json(booking, { status: 201 });
-  } catch (_error) {
+  } catch {
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

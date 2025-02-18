@@ -23,8 +23,7 @@ export async function GET(
     }
 
     return NextResponse.json(property);
-  } catch (_error) {
-    console.error("Error fetching property:", _error);
+  } catch {
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
@@ -59,7 +58,7 @@ export async function PUT(
     });
 
     return NextResponse.json(updatedProperty);
-  } catch (_error) {
+  } catch {
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
@@ -89,7 +88,7 @@ export async function DELETE(
 
     await prisma.property.delete({ where: { id: params.id } });
     return NextResponse.json({ message: "Property deleted successfully" });
-  } catch (_error) {
+  } catch {
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
