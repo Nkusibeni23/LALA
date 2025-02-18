@@ -169,7 +169,7 @@ export default function BookingSection({ property }: BookingSectionProps) {
                       classNames={{
                         day_selected: "bg-black text-white font-semibold",
                         day_disabled: "bg-gray-300 text-gray-800",
-                        day_today: "bg-black text-white",
+                        day_today: "bg-gray-400 text-black",
                         day_outside: "text-gray-400",
                       }}
                     />
