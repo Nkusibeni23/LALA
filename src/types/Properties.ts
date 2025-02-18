@@ -13,6 +13,9 @@ export interface Amenity {
 export interface HostPropertyModalProps {
   isOpen: boolean;
   onClose: () => void;
+  mode?: "create" | "update";
+  propertyId?: string;
+  initialData?: PropertiesData;
 }
 
 export interface PropertiesData {

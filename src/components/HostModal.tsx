@@ -69,22 +69,27 @@ const amenities: Amenity[] = [
 const HostPropertyModal: React.FC<HostPropertyModalProps> = ({
   isOpen,
   onClose,
+  mode = "create",
+  propertyId,
+  initialData,
 }) => {
   const [step, setStep] = useState(1);
   const [progress, setProgress] = useState(0);
   const totalSteps = 6;
 
-  const [formData, setFormData] = useState<PropertiesData>({
-    category: "",
-    title: "",
-    description: "",
-    location: "",
-    price: "",
-    rooms: "",
-    bathrooms: "",
-    amenities: [],
-    images: [],
-  });
+  const [formData, setFormData] = useState<PropertiesData>(
+    initialData || {
+      category: "",
+      title: "",
+      description: "",
+      location: "",
+      price: "",
+      rooms: "",
+      bathrooms: "",
+      amenities: [],
+      images: [],
+    }
+  );
   const [validation, setValidation] = useState<{
     type: "success" | "error" | "warning";
     message: string;
@@ -140,6 +145,22 @@ const HostPropertyModal: React.FC<HostPropertyModalProps> = ({
     }
   };
 
+  useEffect(() => {
+    if (mode === "update" && propertyId) {
+      const fetchProperty = async () => {
+        try {
+          const response = await api.get<PropertiesData>(
+            `/properties/${propertyId}`
+          );
+          setFormData(response.data);
+        } catch (error) {
+          console.error("Error fetching property:", error);
+        }
+      };
+      fetchProperty();
+    }
+  }, [mode, propertyId]);
+
   const handleSubmit = async () => {
     try {
       const {
@@ -154,39 +175,57 @@ const HostPropertyModal: React.FC<HostPropertyModalProps> = ({
         bathrooms,
       } = formData;
 
-      const { data } = await api.post("/properties", {
-        category,
-        title,
-        description,
-        price: parseFloat(price),
-        location,
-        images,
-        amenities,
-        rooms: parseInt(rooms),
-        bathrooms: parseInt(bathrooms),
-      });
+      if (mode === "create") {
+        const { data } = await api.post("/properties", {
+          category,
+          title,
+          description,
+          price: parseFloat(price),
+          location,
+          images,
+          amenities,
+          rooms: parseInt(rooms),
+          bathrooms: parseInt(bathrooms),
+        });
 
-      resetForm();
-      setStep(1);
-      setProgress(0);
+        setValidation({
+          type: "success",
+          message: "Property created successfully!",
+        });
+        resetForm();
+      } else if (mode === "update" && propertyId) {
+        const { data } = await api.put(`/properties/${propertyId}`, {
+          category,
+          title,
+          description,
+          price: parseFloat(price),
+          location,
+          images,
+          amenities,
+          rooms: parseInt(rooms),
+          bathrooms: parseInt(bathrooms),
+        });
 
-      setValidation({
-        type: "success",
-        message: "Property created successfully!",
-      });
+        setValidation({
+          type: "success",
+          message: "Property updated successfully!",
+        });
+      }
 
       setTimeout(() => {
         onClose();
+        window.location.reload();
       }, 3000);
     } catch (error) {
       console.error("Error submitting property:", error);
       setValidation({
         type: "error",
-        message: "Failed to create property. Please try again.",
+        message: `Failed to ${
+          mode === "create" ? "create" : "update"
+        } property. Please try again.`,
       });
     }
   };
-
   const resetForm = () => {
     setFormData({
       category: "",

@@ -17,6 +17,7 @@ import { Loader2 } from "lucide-react";
 import api from "@/lib/axios";
 import { ValidationCardProps } from "@/types/Validation";
 import ValidationCard from "./ValidationCard";
+import HostPropertyModal from "./HostModal";
 
 export default function UpdateSection({ propertyId }: { propertyId: string }) {
   const router = useRouter();
@@ -25,6 +26,7 @@ export default function UpdateSection({ propertyId }: { propertyId: string }) {
   const [validation, setValidation] = useState<ValidationCardProps | null>(
     null
   );
+  const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
 
   const handleDelete = async () => {
     setIsDeleteLoading(true);
@@ -67,10 +69,12 @@ export default function UpdateSection({ propertyId }: { propertyId: string }) {
           <Button
             className="w-full hover:bg-black hover:text-white duration-300 transition-all"
             variant="outline"
+            onClick={() => setIsUpdateModalOpen(true)}
           >
             Update Your Place
           </Button>
 
+          {/* Delete Your Place Button */}
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button
@@ -116,6 +120,14 @@ export default function UpdateSection({ propertyId }: { propertyId: string }) {
           </Dialog>
         </CardContent>
       </Card>
+
+      {/* Update Property Modal */}
+      <HostPropertyModal
+        isOpen={isUpdateModalOpen}
+        onClose={() => setIsUpdateModalOpen(false)}
+        mode="update"
+        propertyId={propertyId}
+      />
     </div>
   );
 }
