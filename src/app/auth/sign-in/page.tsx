@@ -24,7 +24,7 @@ export default function SignInPage() {
     signIn("google", { callbackUrl: "/" });
   };
 
-  const handleEmailChange = (e: { target: { value: any } }) => {
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setEmail(value);
 
@@ -34,13 +34,14 @@ export default function SignInPage() {
     );
   };
 
-  const handlePasswordChange = (e: { target: { value: any } }) => {
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setPassword(value);
     setError(
       value.length < 8 ? "Password must be at least 8 characters long." : ""
     );
   };
+
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     if (emailError || error) return;
@@ -50,7 +51,6 @@ export default function SignInPage() {
       const response = await signIn("credentials", {
         email,
         password,
-        name,
         redirect: false,
       });
 
@@ -66,7 +66,7 @@ export default function SignInPage() {
         await new Promise((resolve) => setTimeout(resolve, 1500));
         router.push("/");
       }
-    } catch (error) {
+    } catch (error: unknown) {
       setValidationCardType("error");
       setValidationCardMessage("An error occurred during sign in.");
       setValidationCardVisible(true);

@@ -27,7 +27,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import BookingSection from "@/components/BookingSection";
 import SpinnerLoader from "@/components/SpinnerLoader";
-import Updatesection from "@/components/Updatesection";
 import UpdateSection from "@/components/Updatesection";
 
 const amenityIcons: { [key: string]: JSX.Element } = {

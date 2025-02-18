@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcrypt";
 import prisma from "@/lib/prisma";
+import { UserInput } from "@/types/User";
 
 export async function POST(req: Request) {
   try {
-    const body = await req.json();
+    const body: UserInput = await req.json();
 
     const errorMessage = validateUserInput(body);
     if (errorMessage) {
@@ -36,7 +37,7 @@ export async function POST(req: Request) {
       { message: "User registered successfully.", user: newUser },
       { status: 201 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error("Signup Error:", error);
     return NextResponse.json(
       { error: "Error creating user." },
@@ -45,14 +46,14 @@ export async function POST(req: Request) {
   }
 }
 
-function validateUserInput(data: any) {
+function validateUserInput(data: UserInput): string | null {
   if (!data.email || !data.password || !data.name) {
     return "All fields are required.";
   }
   if (data.password.length < 6) {
     return "Password must be at least 6 characters.";
   }
-  if (!["RENTER", "HOST"].includes(data.role)) {
+  if (data.role && !["RENTER", "HOST"].includes(data.role)) {
     return "Invalid role. Choose either 'RENTER' or 'HOST'.";
   }
   return null;
