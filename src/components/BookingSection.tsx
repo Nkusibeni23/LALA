@@ -20,7 +20,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { DateRange } from "react-day-picker";
-import { addDays, isWithinInterval } from "date-fns";
+import { addDays, isWithinInterval, differenceInDays } from "date-fns";
 import { useSession } from "next-auth/react";
 import LoginModal from "./LoginModal";
 import { useRouter } from "next/navigation";
@@ -37,6 +37,10 @@ export default function BookingSection({ property }: BookingSectionProps) {
   const [date, setDate] = useState<DateRange | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+
+  const totalNights =
+    date?.from && date?.to ? differenceInDays(date.to, date.from) : 0;
+  const totalPrice = totalNights * property.price;
 
   const handleDateConfirm = () => {
     setIsLoading(true);
@@ -63,8 +67,9 @@ export default function BookingSection({ property }: BookingSectionProps) {
         body: JSON.stringify({
           propertyId: property.id,
           userId: session.user.id,
-          startDate: date.from.toISOString(),
-          endDate: date.to.toISOString(),
+          checkIn: date.from.toISOString(),
+          checkOut: date.to.toISOString(),
+          totalPrice,
         }),
       });
 
@@ -74,10 +79,8 @@ export default function BookingSection({ property }: BookingSectionProps) {
 
       const data = await response.json();
 
-      // Show success message
       toast.success("Booking request submitted successfully!");
 
-      // Redirect to confirmation page or refresh the page
       router.push(`/bookings/${data.bookingId}`);
     } catch (error) {
       console.error("Error creating booking:", error);
@@ -95,6 +98,14 @@ export default function BookingSection({ property }: BookingSectionProps) {
     });
   };
 
+  const handleSelectDatesClick = () => {
+    if (!session) {
+      setShowLoginModal(true);
+    } else {
+      setIsDialogOpen(true);
+    }
+  };
+
   return (
     <div className="lg:col-span-1">
       <Card className="sticky top-8">
@@ -106,12 +117,14 @@ export default function BookingSection({ property }: BookingSectionProps) {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
+            {/* Select Dates Button */}
             {session ? (
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
                   <Button
                     variant="outline"
                     className="w-full hover:bg-black hover:text-white duration-300 transition-all"
+                    onClick={handleSelectDatesClick}
                   >
                     <CalendarIcon className="mr-2 h-4 w-4" />
                     {date?.from ? (
@@ -149,18 +162,39 @@ export default function BookingSection({ property }: BookingSectionProps) {
                       }}
                       modifiersStyles={{
                         range_middle: {
-                          backgroundColor: "#f3f4f6",
+                          backgroundColor: "#BFBFBF",
                           color: "#000000",
                         },
                       }}
                       classNames={{
-                        day_selected: "bg-black text-white",
-                        day_disabled: "bg-gray-200 text-gray-400",
-                        day_today: "bg-black text-black",
+                        day_selected: "bg-black text-white font-semibold",
+                        day_disabled: "bg-gray-300 text-gray-800",
+                        day_today: "bg-black text-white",
                         day_outside: "text-gray-400",
                       }}
                     />
                   </div>
+                  {/* Booking Summary */}
+                  {date?.from && date?.to && (
+                    <div className="p-4 bg-gray-50 rounded-xl">
+                      <div className="flex justify-between mb-2">
+                        <span className="font-normal">Price per night</span>
+                        <span className="font-semibold">
+                          ${property.price.toLocaleString()}
+                        </span>
+                      </div>
+                      <div className="flex justify-between mb-2">
+                        <span className="font-normal">Total nights</span>
+                        <span className="font-medium">{totalNights}</span>
+                      </div>
+                      <div className="border-t pt-2 mt-2">
+                        <div className="flex justify-between font-bold">
+                          <span>Total</span>
+                          <span>${totalPrice.toLocaleString()}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                   <div className="flex justify-end pt-4">
                     <Button
                       type="button"
@@ -192,15 +226,25 @@ export default function BookingSection({ property }: BookingSectionProps) {
               </Button>
             )}
 
-            {/* Price Breakdown */}
-            <div className="p-4 bg-gray-50 rounded-lg">
-              <div className="flex justify-between mb-2">
-                <span>Price per month</span>
-                <span className="font-bold">
-                  ${property.price.toLocaleString()}
-                </span>
-              </div>
+            {/* Total nights and Total price */}
+            <div className="flex justify-between">
+              <span className="font-normal">Price per night</span>
+              <span className="font-semibold">
+                ${property.price.toLocaleString()}
+              </span>
             </div>
+            {date?.from && date?.to && (
+              <div className="space-y-2">
+                <div className="flex justify-between">
+                  <span>Total nights</span>
+                  <span className="font-medium">{totalNights}</span>
+                </div>
+                <div className="flex justify-between font-bold">
+                  <span>Total</span>
+                  <span>${totalPrice.toLocaleString()}</span>
+                </div>
+              </div>
+            )}
 
             {/* Request to Book Button */}
             <Button

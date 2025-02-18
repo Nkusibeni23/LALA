@@ -39,7 +39,8 @@ export const HouseCard = ({ house }: HouseCardProps) => {
           <h3 className="text-lg font-semibold truncate">{house.title}</h3>
           <p className="text-gray-500 text-sm truncate">{house.location}</p>
           <p className="text-xl font-bold mt-2">
-            ${house.price.toLocaleString()}
+            ${house.price.toLocaleString()}{" "}
+            <span className="text-gray-500 font-normal">per Night</span>
           </p>
 
           {/* Properties Details*/}

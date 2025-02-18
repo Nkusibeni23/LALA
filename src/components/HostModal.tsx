@@ -429,7 +429,7 @@ const HostPropertyModal: React.FC<HostPropertyModalProps> = ({
             </DialogHeader>
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label>Price per month</Label>
+                <Label>Price per Night</Label>
                 <Input
                   type="number"
                   placeholder="$"
