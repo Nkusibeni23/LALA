@@ -115,7 +115,7 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-800 via-black-900 to-gray-500 p-4">
+    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-slate-700 via-black-500 to-gray-100 p-4">
       <div className="absolute inset-0 opacity-10 bg-cover bg-center mix-blend-overlay" />
       <motion.div
         initial="hidden"
@@ -142,16 +142,16 @@ export default function SignUpPage() {
           initial="hidden"
           animate="visible"
           variants={fadeIn}
-          className="backdrop-blur-lg bg-gray-900 p-8 rounded-2xl shadow-2xl border border-gray-700/50 overflow-hidden"
+          className="backdrop-blur-lg bg-gray-200 p-8 rounded-2xl shadow-2xl border border-gray-700/50 overflow-hidden"
         >
           <motion.header
             variants={staggerChildren}
             className="text-center mb-8"
           >
-            <motion.h2 className="text-3xl font-bold text-white mb-2 transform transition-all duration-300">
+            <motion.h2 className="text-3xl font-bold text-gray-900 mb-2 transform transition-all duration-300">
               Welcome
             </motion.h2>
-            <motion.p variants={fadeIn} className="text-gray-400">
+            <motion.p variants={fadeIn} className="text-gray-600">
               TO LALA STATE
             </motion.p>
           </motion.header>
@@ -162,7 +162,7 @@ export default function SignUpPage() {
             whileTap={{ scale: 0.98 }}
             onClick={handleGoogleSignIn}
             className="w-full flex items-center justify-center space-x-2 py-3 rounded-xl font-semibold 
-              bg-gray-300 hover:bg-gray-100 active:scale-95 hover:shadow-lg transition-all duration-300 ease-out text-gray-900 mb-4"
+              bg-gray-800 hover:bg-gray-900 active:scale-95 hover:shadow-lg transition-all duration-300 ease-out text-gray-100 mb-4"
           >
             <FcGoogle className="w-6 h-6" />
             <span>Continue with Google</span>
@@ -170,9 +170,9 @@ export default function SignUpPage() {
 
           {/* Divider */}
           <div className="flex items-center justify-center my-4">
-            <div className="w-1/4 border-t border-gray-700"></div>
-            <span className="mx-4 text-gray-400 text-sm">Or</span>
-            <div className="w-1/4 border-t border-gray-700"></div>
+            <div className="w-1/4 border-t border-gray-900"></div>
+            <span className="mx-4 text-gray-600 text-sm">Or</span>
+            <div className="w-1/4 border-t border-gray-900"></div>
           </div>
 
           <motion.form
@@ -187,11 +187,11 @@ export default function SignUpPage() {
                 required
                 value={name}
                 onChange={handleNameChange}
-                className="w-full px-4 py-3 rounded-lg bg-transparent border-gray-300 focus:outline-none
-               border border-gray-600/50 text-white
-                focus:ring-1 focus:ring-gray-100
-               focus:border-transparent transition-all duration-300
-               "
+                className="w-full px-4 py-3 rounded-lg bg-transparent border-gray-600 focus:outline-none
+                border border-gray-600/80 text-gray-800
+                 focus:ring-1 focus:ring-gray-900
+                focus:border-transparent transition-all duration-300
+                "
               />
             </motion.div>
             <motion.div variants={fadeIn}>
@@ -201,9 +201,9 @@ export default function SignUpPage() {
                 required
                 value={email}
                 onChange={handleEmailChange}
-                className="w-full px-4 py-3 rounded-lg bg-transparent border-gray-300 focus:outline-none
-                border border-gray-600/50 text-white
-                 focus:ring-1 focus:ring-gray-100
+                className="w-full px-4 py-3 rounded-lg bg-transparent border-gray-600 focus:outline-none
+                border border-gray-600/80 text-gray-800
+                 focus:ring-1 focus:ring-gray-900
                 focus:border-transparent transition-all duration-300
                 "
               />
@@ -218,9 +218,9 @@ export default function SignUpPage() {
                 required
                 value={password}
                 onChange={handlePasswordChange}
-                className="w-full px-4 py-3 rounded-lg bg-transparent border-gray-300 focus:outline-none
-                border border-gray-600/50 text-white
-                 focus:ring-1 focus:ring-gray-100
+                className="w-full px-4 py-3 rounded-lg bg-transparent border-gray-600 focus:outline-none
+                border border-gray-600/80 text-gray-800
+                 focus:ring-1 focus:ring-gray-900
                 focus:border-transparent transition-all duration-300
                 "
               />
@@ -231,9 +231,9 @@ export default function SignUpPage() {
               <select
                 value={role}
                 onChange={handleRoleChange}
-                className="w-full px-4 py-3 rounded-lg bg-transparent border-gray-300 focus:outline-none
-                border border-gray-600/50 text-white
-                 focus:ring-1 focus:ring-gray-100
+                className="w-full px-4 py-3 rounded-lg bg-transparent border-gray-600 focus:outline-none
+                border border-gray-600/80 text-gray-800
+                 focus:ring-1 focus:ring-gray-900
                 focus:border-transparent transition-all duration-300
                 "
               >
@@ -247,10 +247,10 @@ export default function SignUpPage() {
               whileHover={{ scale: 1.02 }}
               whileTap={{ scale: 0.98 }}
               disabled={isLoading}
-              className={`w-full py-3 rounded-xl font-semibold text-gray-900 transform transition-all duration-300 ease-out ${
+              className={`w-full py-3 rounded-xl font-semibold text-gray-100 transform transition-all duration-300 ease-out ${
                 isLoading
-                  ? "bg-gray-100/50 cursor-wait"
-                  : "bg-gray-300 hover:bg-gray-100 active:scale-95 hover:shadow-lg"
+                  ? "bg-gray-700 cursor-wait"
+                  : "bg-gray-800 hover:bg-gray-900 active:scale-95 hover:shadow-lg"
               }`}
             >
               {isLoading ? (
@@ -265,10 +265,10 @@ export default function SignUpPage() {
           <motion.div variants={fadeIn} className="mt-6 text-center">
             <button
               onClick={() => router.push("/auth/sign-in")}
-              className="text-sm text-gray-400"
+              className="text-sm text-gray-700"
             >
               Already have an account?{" "}
-              <span className="ml-2 text-sm font-bold text-gray-400 hover:text-gray-100 transition-colors duration-300">
+              <span className="ml-2 text-sm font-bold text-gray-800 hover:text-gray-900 transition-colors duration-300">
                 Sign In
               </span>
             </button>
