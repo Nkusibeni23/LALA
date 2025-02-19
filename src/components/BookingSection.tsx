@@ -23,7 +23,7 @@ import { DateRange } from "react-day-picker";
 import { addDays, isWithinInterval, differenceInDays } from "date-fns";
 import { useSession } from "next-auth/react";
 import LoginModal from "./LoginModal";
-import { toast } from "sonner";
+import ValidationCard from "./ValidationCard";
 
 interface BookingSectionProps {
   property: any;
@@ -35,6 +35,10 @@ export default function BookingSection({ property }: BookingSectionProps) {
   const [date, setDate] = useState<DateRange | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [validation, setValidation] = useState<{
+    type: "success" | "error" | "warning";
+    message: string;
+  } | null>(null);
 
   const totalNights =
     date?.from && date?.to ? differenceInDays(date.to, date.from) : 0;
@@ -50,7 +54,12 @@ export default function BookingSection({ property }: BookingSectionProps) {
 
   const handleBookingRequest = async () => {
     if (!session || !date?.from || !date?.to) {
-      toast.error("Please select valid dates and ensure you are logged in.");
+      setValidation({
+        type: "error",
+        message: "Please select valid dates and ensure you are logged in.",
+      });
+
+      setTimeout(() => setValidation(null), 3000);
       return;
     }
 
@@ -71,16 +80,40 @@ export default function BookingSection({ property }: BookingSectionProps) {
         }),
       });
 
-      if (!response.ok) {
-        throw new Error("Failed to create booking");
-      }
-
       const data = await response.json();
 
-      toast.success("Booking request submitted successfully!");
-    } catch (error) {
+      if (response.status === 409) {
+        setValidation({
+          type: "error",
+          message:
+            "Property already booked for selected dates. Please choose different dates.",
+        });
+
+        setTimeout(() => setValidation(null), 5000);
+        return;
+      }
+
+      if (!response.ok) {
+        throw new Error(data?.error || "Failed to create booking");
+      }
+
+      setValidation({
+        type: "success",
+        message: "Booking request submitted successfully!",
+      });
+
+      setTimeout(() => setValidation(null), 3000);
+
+      setDate(undefined);
+    } catch (error: any) {
       console.error("Error creating booking:", error);
-      toast.error("Failed to submit booking request. Please try again.");
+      setValidation({
+        type: "error",
+        message:
+          error.message || "An unexpected error occurred. Please try again.",
+      });
+
+      setTimeout(() => setValidation(null), 5000);
     } finally {
       setIsLoading(false);
     }
@@ -104,6 +137,10 @@ export default function BookingSection({ property }: BookingSectionProps) {
 
   return (
     <div className="lg:col-span-1">
+      {/* Validation Message */}
+      {validation && (
+        <ValidationCard type={validation.type} message={validation.message} />
+      )}
       <Card className="sticky top-8">
         <CardHeader>
           <CardTitle>Book this property</CardTitle>
