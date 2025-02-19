@@ -24,6 +24,7 @@ import { addDays, isWithinInterval, differenceInDays } from "date-fns";
 import { useSession } from "next-auth/react";
 import LoginModal from "./LoginModal";
 import ValidationCard from "./ValidationCard";
+import api from "@/lib/axios";
 
 interface BookingSectionProps {
   property: any;
@@ -66,21 +67,15 @@ export default function BookingSection({ property }: BookingSectionProps) {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/bookings", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          propertyId: property.id,
-          userId: session.user.id,
-          checkIn: date.from.toISOString(),
-          checkOut: date.to.toISOString(),
-          totalPrice,
-        }),
+      const response = await api.post("/bookings", {
+        propertyId: property.id,
+        userId: session.user.id,
+        checkIn: date.from.toISOString(),
+        checkOut: date.to.toISOString(),
+        totalPrice,
       });
 
-      const data = await response.json();
+      const data = response.data;
 
       if (response.status === 409) {
         setValidation({
@@ -93,24 +88,28 @@ export default function BookingSection({ property }: BookingSectionProps) {
         return;
       }
 
-      if (!response.ok) {
-        throw new Error(data?.error || "Failed to create booking");
-      }
-
       setValidation({
         type: "success",
         message: "Booking request submitted successfully!",
       });
 
       setTimeout(() => setValidation(null), 3000);
-
       setDate(undefined);
     } catch (error: any) {
       console.error("Error creating booking:", error);
+
+      let errorMessage = "An unexpected error occurred. Please try again.";
+
+      if (error.response?.status === 409) {
+        errorMessage =
+          "Property already booked for selected dates. Please choose different dates.";
+      } else if (error.response?.data?.error) {
+        errorMessage = error.response.data.error;
+      }
+
       setValidation({
         type: "error",
-        message:
-          error.message || "An unexpected error occurred. Please try again.",
+        message: errorMessage,
       });
 
       setTimeout(() => setValidation(null), 5000);
