@@ -54,11 +54,6 @@ export default function BookingSection({ property }: BookingSectionProps) {
       return;
     }
 
-    if (!totalPrice || totalPrice <= 0) {
-      toast.error("Invalid total price");
-      return;
-    }
-
     setIsLoading(true);
 
     try {
@@ -72,16 +67,16 @@ export default function BookingSection({ property }: BookingSectionProps) {
           userId: session.user.id,
           checkIn: date.from.toISOString(),
           checkOut: date.to.toISOString(),
-          totalPrice: Number(totalPrice),
+          totalPrice,
         }),
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to create booking");
+        throw new Error("Failed to create booking");
       }
 
       const data = await response.json();
+
       toast.success("Booking request submitted successfully!");
     } catch (error) {
       console.error("Error creating booking:", error);
