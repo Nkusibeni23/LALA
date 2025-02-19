@@ -25,10 +25,7 @@ import { useSession } from "next-auth/react";
 import LoginModal from "./LoginModal";
 import ValidationCard from "./ValidationCard";
 import api from "@/lib/axios";
-
-interface BookingSectionProps {
-  property: any;
-}
+import { BookingResponse, BookingSectionProps } from "@/types/Booking";
 
 export default function BookingSection({ property }: BookingSectionProps) {
   const { data: session } = useSession();
@@ -67,15 +64,13 @@ export default function BookingSection({ property }: BookingSectionProps) {
     setIsLoading(true);
 
     try {
-      const response = await api.post("/bookings", {
+      const response = await api.post<BookingResponse>("/bookings", {
         propertyId: property.id,
         userId: session.user.id,
         checkIn: date.from.toISOString(),
         checkOut: date.to.toISOString(),
         totalPrice,
       });
-
-      const data = response.data;
 
       if (response.status === 409) {
         setValidation({
@@ -88,6 +83,13 @@ export default function BookingSection({ property }: BookingSectionProps) {
         return;
       }
 
+      await api.post("/notification", {
+        userId: session.user.id,
+        message: `Your booking for ${property.title} has been requested!`,
+        type: "booking",
+        bookingId: response.data.id,
+      });
+
       setValidation({
         type: "success",
         message: "Booking request submitted successfully!",
@@ -97,19 +99,11 @@ export default function BookingSection({ property }: BookingSectionProps) {
       setDate(undefined);
     } catch (error: any) {
       console.error("Error creating booking:", error);
-
-      let errorMessage = "An unexpected error occurred. Please try again.";
-
-      if (error.response?.status === 409) {
-        errorMessage =
-          "Property already booked for selected dates. Please choose different dates.";
-      } else if (error.response?.data?.error) {
-        errorMessage = error.response.data.error;
-      }
-
       setValidation({
         type: "error",
-        message: errorMessage,
+        message:
+          error.response?.data?.error ||
+          "An unexpected error occurred. Please try again.",
       });
 
       setTimeout(() => setValidation(null), 5000);
@@ -136,7 +130,6 @@ export default function BookingSection({ property }: BookingSectionProps) {
 
   return (
     <div className="lg:col-span-1">
-      {/* Validation Message */}
       {validation && (
         <ValidationCard type={validation.type} message={validation.message} />
       )}
