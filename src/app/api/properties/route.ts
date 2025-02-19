@@ -21,7 +21,6 @@ export async function POST(req: NextRequest) {
       rooms,
       bathrooms,
     } = await req.json();
-
     if (!title || !price || !location || !rooms || !bathrooms) {
       return NextResponse.json(
         { error: "Missing required fields" },

@@ -23,7 +23,6 @@ import { DateRange } from "react-day-picker";
 import { addDays, isWithinInterval, differenceInDays } from "date-fns";
 import { useSession } from "next-auth/react";
 import LoginModal from "./LoginModal";
-import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 interface BookingSectionProps {
@@ -32,7 +31,6 @@ interface BookingSectionProps {
 
 export default function BookingSection({ property }: BookingSectionProps) {
   const { data: session } = useSession();
-  const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [date, setDate] = useState<DateRange | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
@@ -56,6 +54,11 @@ export default function BookingSection({ property }: BookingSectionProps) {
       return;
     }
 
+    if (!totalPrice || totalPrice <= 0) {
+      toast.error("Invalid total price");
+      return;
+    }
+
     setIsLoading(true);
 
     try {
@@ -69,19 +72,17 @@ export default function BookingSection({ property }: BookingSectionProps) {
           userId: session.user.id,
           checkIn: date.from.toISOString(),
           checkOut: date.to.toISOString(),
-          totalPrice,
+          totalPrice: Number(totalPrice),
         }),
       });
 
       if (!response.ok) {
-        throw new Error("Failed to create booking");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create booking");
       }
 
       const data = await response.json();
-
       toast.success("Booking request submitted successfully!");
-
-      router.push(`/bookings/${data.bookingId}`);
     } catch (error) {
       console.error("Error creating booking:", error);
       toast.error("Failed to submit booking request. Please try again.");

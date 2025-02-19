@@ -2,38 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 import prisma from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
-export async function GET() {
+export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
     if (!session) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    const bookings = await prisma.booking.findMany({
-      where: { renterId: session.user.id },
-      include: { property: true },
-    });
-
-    return NextResponse.json(bookings);
-  } catch {
-    return NextResponse.json(
-      { error: "Internal Server Error" },
-      { status: 500 }
-    );
-  }
-}
-
-export async function POST(req: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== "RENTER") {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
-    }
-
     const { propertyId, checkIn, checkOut } = await req.json();
 
-    // Validate input
     if (!propertyId || !checkIn || !checkOut) {
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -50,7 +29,25 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check for overlapping bookings
+    const property = await prisma.property.findUnique({
+      where: { id: propertyId },
+      select: { hostId: true, price: true },
+    });
+
+    if (!property) {
+      return NextResponse.json(
+        { error: "Property not found" },
+        { status: 404 }
+      );
+    }
+
+    if (session.user.role === "HOST" && session.user.id === property.hostId) {
+      return NextResponse.json(
+        { error: "Hosts cannot book their own properties" },
+        { status: 403 }
+      );
+    }
+
     const overlappingBooking = await prisma.booking.findFirst({
       where: {
         propertyId,
@@ -68,7 +65,12 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Create the booking
+    const totalNights = Math.ceil(
+      (checkOutDate.getTime() - checkInDate.getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    const totalPrice = totalNights * property.price;
+
     const booking = await prisma.booking.create({
       data: {
         propertyId,
@@ -76,11 +78,35 @@ export async function POST(req: NextRequest) {
         checkIn: checkInDate,
         checkOut: checkOutDate,
         status: "PENDING",
-      },
+        totalPrice,
+      } as Prisma.BookingUncheckedCreateInput,
     });
 
     return NextResponse.json(booking, { status: 201 });
-  } catch {
+  } catch (error) {
+    console.error("Booking error:", error);
+    return NextResponse.json(
+      { error: "Internal Server Error" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(req: NextRequest) {
+  try {
+    const session = await getServerSession(authOptions);
+    if (!session) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
+    }
+
+    const bookings = await prisma.booking.findMany({
+      where: { renterId: session.user.id },
+      include: { property: true },
+    });
+
+    return NextResponse.json(bookings);
+  } catch (error) {
+    console.error("Booking fetch error:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }
