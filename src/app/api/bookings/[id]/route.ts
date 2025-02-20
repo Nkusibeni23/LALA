@@ -23,7 +23,10 @@ export async function PUT(
 
     const booking = await prisma.booking.findUnique({
       where: { id: params.id },
-      include: { property: true },
+      include: {
+        property: true,
+        renter: true,
+      },
     });
 
     if (!booking || booking.property.hostId !== session.user.id) {
@@ -33,13 +36,50 @@ export async function PUT(
       );
     }
 
+    // Update the booking status
     const updatedBooking = await prisma.booking.update({
       where: { id: params.id },
       data: { status },
     });
 
+    const notificationMessage =
+      status === "CONFIRMED"
+        ? `Your booking for ${booking.property.title} has been approved!`
+        : `Your booking for ${booking.property.title} has been declined.`;
+
+    await prisma.notification.create({
+      data: {
+        userId: booking.renterId,
+        message: notificationMessage,
+        type: "booking_update",
+        bookingId: booking.id,
+        data: {
+          status,
+          checkIn: booking.checkIn.toISOString(),
+          checkOut: booking.checkOut.toISOString(),
+        },
+      },
+    });
+
+    await prisma.notification.create({
+      data: {
+        userId: booking.property.hostId,
+        message: `You ${status.toLowerCase()} a booking for ${
+          booking.property.title
+        }.`,
+        type: "booking_update",
+        bookingId: booking.id,
+        data: {
+          status,
+          checkIn: booking.checkIn.toISOString(),
+          checkOut: booking.checkOut.toISOString(),
+        },
+      },
+    });
+
     return NextResponse.json(updatedBooking);
-  } catch {
+  } catch (error) {
+    console.error("Booking update error:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },
       { status: 500 }

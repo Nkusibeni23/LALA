@@ -2,11 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Filter, LogIn, Menu, Plus } from "lucide-react";
+import { Search, Filter, LogIn, Menu, Plus, Bell } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import HostPropertyModal from "./HostModal";
+import NotificationPopover from "./NotificationPopover";
 
 interface NavbarProps {
   searchTerm: string;
@@ -26,37 +27,12 @@ export function Navbar({
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 10);
     };
 
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
-
-  const getUserColorIndex = (name: string) => {
-    let hash = 0;
-    for (let i = 0; i < name.length; i++) {
-      hash = name.charCodeAt(i) + ((hash << 5) - hash);
-    }
-    return Math.abs(hash) % 6;
-  };
-
-  const colors = [
-    "bg-blue-500",
-    "bg-green-500",
-    "bg-gray-900",
-    "bg-yellow-500",
-    "bg-indigo-500",
-    "bg-purple-500",
-  ];
-
-  const userColorIndex = session
-    ? getUserColorIndex(session.user?.name || "Unknown")
-    : 0;
 
   return (
     <>
@@ -66,13 +42,14 @@ export function Navbar({
         }`}
       >
         <div className="flex items-center justify-between max-w-[1920px] mx-auto">
+          {/* Left: Menu & Search */}
           <div className="flex items-center gap-1 md:gap-2">
             <Button
               variant="outline"
               onClick={() => setIsSidebarOpen((prev) => !prev)}
               className="lg:hidden"
             >
-              <Menu className="w-3 h-3 md:h-4 md:w-4" />
+              <Menu className="w-4 h-4" />
             </Button>
 
             <div className="relative flex-1">
@@ -87,36 +64,38 @@ export function Navbar({
             </div>
           </div>
 
-          <div className="flex items-center gap-2 md:gap-4">
+          {/* Right: Filter, Notifications, Login/Profile */}
+          <div className="flex items-center gap-3 md:gap-5">
+            {/* Filter Button */}
             <Button
               variant="outline"
               className="hidden sm:flex hover:bg-gray-900 hover:text-white"
             >
-              <Filter className="w-3 h-3 md:h-4 md:w-4" />
+              <Filter className="w-4 h-4" />
               <span className="hidden md:block">Filters</span>
             </Button>
 
+            <NotificationPopover />
+
+            {/* Host Button (For Hosts Only) */}
             {session?.user?.role === "HOST" && (
               <Button
                 variant="outline"
                 className="hover:bg-gray-900 hover:text-white transition-all duration-300"
                 onClick={() => setIsHostModalOpen(true)}
               >
-                <Plus className="w-3 h-3 md:h-4 md:w-4" />
+                <Plus className="w-4 h-4" />
                 <span className="hidden md:block">Host Your Place</span>
               </Button>
             )}
 
+            {/* User Profile or Login */}
             {session ? (
               <div className="flex items-center gap-2">
-                <div
-                  className={`flex items-center cursor-pointer justify-center w-10 h-10 md:w-14 md:h-14 rounded-full ${colors[userColorIndex]}`}
-                >
-                  <span className="text-white text-lg font-bold">
-                    {session.user?.name
-                      ? session.user.name.charAt(0).toUpperCase()
-                      : "U"}
-                  </span>
+                <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-gray-900 text-white rounded-full text-lg font-bold cursor-pointer">
+                  {session.user?.name
+                    ? session.user.name.charAt(0).toUpperCase()
+                    : "U"}
                 </div>
               </div>
             ) : (
@@ -125,13 +104,15 @@ export function Navbar({
                 className="hover:bg-gray-900 hover:text-white transition-all duration-300"
                 onClick={() => router.push("/auth/sign-in")}
               >
-                <LogIn className="w-3 h-3 md:h-4 md:w-4" />
+                <LogIn className="w-4 h-4" />
                 <span className="hidden md:block">Login</span>
               </Button>
             )}
           </div>
         </div>
       </header>
+
+      {/* Host Modal */}
       <HostPropertyModal
         isOpen={isHostModalOpen}
         onClose={() => setIsHostModalOpen(false)}
