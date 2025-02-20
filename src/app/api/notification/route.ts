@@ -13,7 +13,7 @@ export async function POST(req: NextRequest) {
 
     const { userId, message, type, bookingId, data } = await req.json();
 
-    if (!message || !type) {
+    if (!userId || !message || !type) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
