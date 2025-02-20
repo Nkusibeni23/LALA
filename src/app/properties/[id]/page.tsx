@@ -115,7 +115,7 @@ export default function PropertyPage({ params }: { params: { id: string } }) {
             <Card className="mb-8">
               <CardContent className="p-6">
                 <div className="grid grid-cols-2 gap-4">
-                  {property.images.length > 0 ? (
+                  {property?.images?.length ? (
                     property.images.map((image: string, index: number) => (
                       <img
                         key={index}

@@ -56,7 +56,6 @@ export default function BookingSection({ property }: BookingSectionProps) {
         type: "error",
         message: "Please select valid dates and ensure you are logged in.",
       });
-
       setTimeout(() => setValidation(null), 3000);
       return;
     }
@@ -78,23 +77,40 @@ export default function BookingSection({ property }: BookingSectionProps) {
           message:
             "Property already booked for selected dates. Please choose different dates.",
         });
-
         setTimeout(() => setValidation(null), 5000);
         return;
       }
 
+      // Guest notification
       await api.post("/notification", {
         userId: session.user.id,
-        message: `Your booking for ${property.title} has been requested!`,
-        type: "booking",
+        message: `Your booking request for ${property.title} has been submitted!`,
+        type: "booking_request_guest",
         bookingId: response.data.id,
+        data: {
+          checkIn: date.from.toISOString(),
+          checkOut: date.to.toISOString(),
+          totalPrice,
+        },
+      });
+
+      await api.post("/notification", {
+        userId: property.hostId,
+        message: `New booking request received for ${property.title}`,
+        type: "booking_request_host",
+        bookingId: response.data.id,
+        data: {
+          guestName: session.user.name,
+          checkIn: date.from.toISOString(),
+          checkOut: date.to.toISOString(),
+          totalPrice,
+        },
       });
 
       setValidation({
         type: "success",
         message: "Booking request submitted successfully!",
       });
-
       setTimeout(() => setValidation(null), 3000);
       setDate(undefined);
     } catch (error: any) {
@@ -105,13 +121,11 @@ export default function BookingSection({ property }: BookingSectionProps) {
           error.response?.data?.error ||
           "An unexpected error occurred. Please try again.",
       });
-
       setTimeout(() => setValidation(null), 5000);
     } finally {
       setIsLoading(false);
     }
   };
-
   const isRangeMiddleDay = (day: Date) => {
     if (!date?.from || !date?.to) return false;
     return isWithinInterval(day, {

@@ -10,11 +10,30 @@ export async function GET(
   try {
     const property = await prisma.property.findUnique({
       where: { id: params.id },
-      include: {
-        host: true,
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        price: true,
+        location: true,
+        images: true,
+        amenities: true,
+        rooms: true,
+        bathrooms: true,
+        category: true,
+        createdAt: true,
+        hostId: true,
+        host: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+            createdAt: true,
+          },
+        },
       },
     });
-
     if (!property) {
       return NextResponse.json(
         { error: "Property not found" },

@@ -7,6 +7,7 @@ declare global {
       message: string;
       type: string;
       bookingId?: string;
+      data?: Prisma.JsonValue;
     };
   }
 }

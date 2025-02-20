@@ -11,9 +11,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
     }
 
-    const { userId, message, type, bookingId } = await req.json();
+    const { userId, message, type, bookingId, data } = await req.json();
 
-    if (!userId || !message || !type) {
+    if (!message || !type) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -26,19 +26,19 @@ export async function POST(req: NextRequest) {
         message,
         type,
         bookingId,
+        data,
       },
     });
 
     return NextResponse.json(notification, { status: 201 });
-  } catch (error) {
-    console.error("Error creating notification:", error);
+  } catch (error: any) {
+    console.error("Full error details:", error);
     return NextResponse.json(
-      { error: "Internal Server Error" },
+      { error: error.message || "Internal Server Error" },
       { status: 500 }
     );
   }
 }
-
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions);
