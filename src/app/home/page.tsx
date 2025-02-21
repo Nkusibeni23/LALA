@@ -9,11 +9,19 @@ import { Sidebar } from "@/components/SideBar";
 import { House } from "@/types/HomePage";
 import SkeletonCard from "@/components/SkeletonCard";
 import api from "@/lib/axios";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function HomePage() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortOrder, setSortOrder] = useState<"none" | "asc" | "desc">("none");
   const [isMobile, setIsMobile] = useState(false);
   const [houses, setHouses] = useState<House[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,11 +51,28 @@ export default function HomePage() {
     fetchHouses();
   }, []);
 
+  const filteredHouses = houses.filter((house) =>
+    house.title.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
+  const sortedHouses = [...filteredHouses].sort((a, b) => {
+    if (sortOrder === "asc") {
+      return a.price - b.price;
+    } else if (sortOrder === "desc") {
+      return b.price - a.price;
+    }
+    return 0;
+  });
+
   const housesPerPage = 8;
   const indexOfLastHouse = currentPage * housesPerPage;
   const indexOfFirstHouse = indexOfLastHouse - housesPerPage;
-  const currentHouses = houses.slice(indexOfFirstHouse, indexOfLastHouse);
-  const totalPages = Math.ceil(houses.length / housesPerPage);
+  const currentHouses = sortedHouses.slice(indexOfFirstHouse, indexOfLastHouse);
+  const totalPages = Math.ceil(sortedHouses.length / housesPerPage);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, sortOrder]);
 
   return (
     <div className="flex min-h-screen bg-gray-50 w-full">
@@ -72,6 +97,24 @@ export default function HomePage() {
         />
 
         <main className="flex-1 p-4 lg:p-6 overflow-y-auto">
+          <div className="mb-6 flex justify-end">
+            <Select
+              value={sortOrder}
+              onValueChange={(value: "none" | "asc" | "desc") =>
+                setSortOrder(value)
+              }
+            >
+              <SelectTrigger className="w-[180px] bg-white border border-gray-300 shadow-sm hover:bg-gray-100">
+                <SelectValue placeholder="Sort by price" />
+              </SelectTrigger>
+              <SelectContent className="bg-white border border-gray-300 shadow-lg rounded-md">
+                <SelectItem value="none">Default</SelectItem>
+                <SelectItem value="asc">Price: Low to High</SelectItem>
+                <SelectItem value="desc">Price: High to Low</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-3 xl:grid-cols-4 gap-4 lg:gap-6">
             {loading ? (
               Array(8)
@@ -80,21 +123,23 @@ export default function HomePage() {
             ) : currentHouses.length > 0 ? (
               currentHouses.map((house) => (
                 <Link key={house.id} href={`/properties/${house.id}`}>
-                  {" "}
                   <HouseCard house={house} />
                 </Link>
               ))
             ) : (
-              <p className="p-4 font-bold text-black text-center text-lg">
-                No houses available
+              <p className="col-span-full text-center text-lg font-bold text-gray-600">
+                No houses found matching your search
               </p>
             )}
           </div>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            setCurrentPage={setCurrentPage}
-          />
+
+          {currentHouses.length > 0 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              setCurrentPage={setCurrentPage}
+            />
+          )}
         </main>
       </div>
     </div>

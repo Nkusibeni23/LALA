@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Filter, LogIn, Menu, Plus, Bell } from "lucide-react";
+import { Search, LogIn, Menu, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
@@ -42,7 +42,6 @@ export function Navbar({
         }`}
       >
         <div className="flex items-center justify-between max-w-[1920px] mx-auto">
-          {/* Left: Menu & Search */}
           <div className="flex items-center gap-1 md:gap-2">
             <Button
               variant="outline"
@@ -64,17 +63,7 @@ export function Navbar({
             </div>
           </div>
 
-          {/* Right: Filter, Notifications, Login/Profile */}
           <div className="flex items-center gap-3 md:gap-5">
-            {/* Filter Button */}
-            <Button
-              variant="outline"
-              className="hidden sm:flex hover:bg-gray-900 hover:text-white"
-            >
-              <Filter className="w-4 h-4" />
-              <span className="hidden md:block">Filters</span>
-            </Button>
-
             <NotificationPopover />
 
             {/* Host Button (For Hosts Only) */}

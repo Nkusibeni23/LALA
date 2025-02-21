@@ -3,7 +3,8 @@
 import { Button } from "@/components/ui/button";
 import { ChevronLeft, Home, Map, Heart, Settings, LogOut } from "lucide-react";
 import { signOut } from "next-auth/react";
-import { Dispatch, SetStateAction, useEffect, useRef } from "react";
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from "react";
+import { usePathname, useRouter } from "next/navigation";
 
 interface SidebarProps {
   isSidebarOpen: boolean;
@@ -17,6 +18,9 @@ export function Sidebar({
   setIsSidebarOpen,
 }: SidebarProps) {
   const sidebarRef = useRef<HTMLDivElement>(null);
+  const pathname = usePathname();
+  const router = useRouter();
+  const [activeItem, setActiveItem] = useState<string>(pathname || "/home");
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -40,6 +44,13 @@ export function Sidebar({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [isMobile, isSidebarOpen]);
+
+  const menuItems = [
+    { icon: Home, text: "Home", path: "/home" },
+    { icon: Map, text: "Explore", path: "/explore" },
+    { icon: Heart, text: "Saved", path: "/saved" },
+    { icon: Settings, text: "Settings", path: "/settings" },
+  ];
 
   return (
     <>
@@ -81,16 +92,21 @@ export function Sidebar({
         </div>
 
         <nav className="space-y-2 p-3 flex-1">
-          {[
-            { icon: Home, text: "Home" },
-            { icon: Map, text: "Explore" },
-            { icon: Heart, text: "Saved" },
-            { icon: Settings, text: "Settings" },
-          ].map(({ icon: Icon, text }, index) => (
+          {menuItems.map(({ icon: Icon, text, path }, index) => (
             <Button
               key={index}
               variant="ghost"
-              className="w-full justify-center lg:justify-start text-white hover:bg-gray-800 h-12"
+              onClick={() => {
+                setActiveItem(path);
+                router.push(path);
+              }}
+              className={`w-full justify-center lg:justify-start h-12 transition-all
+                ${
+                  activeItem === path
+                    ? "bg-gray-800 text-white"
+                    : "text-gray-400 hover:bg-gray-800 hover:text-white"
+                }
+              `}
             >
               <Icon className="h-5 w-5" />
               {isSidebarOpen && !isMobile && (
