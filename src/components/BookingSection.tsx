@@ -113,14 +113,22 @@ export default function BookingSection({ property }: BookingSectionProps) {
       });
       setTimeout(() => setValidation(null), 3000);
       setDate(undefined);
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Error creating booking:", error);
-      setValidation({
-        type: "error",
-        message:
-          error.response?.data?.error ||
-          "An unexpected error occurred. Please try again.",
-      });
+
+      if (error instanceof Error) {
+        setValidation({
+          type: "error",
+          message:
+            error.message || "An unexpected error occurred. Please try again.",
+        });
+      } else {
+        setValidation({
+          type: "error",
+          message: "An unexpected error occurred. Please try again.",
+        });
+      }
+
       setTimeout(() => setValidation(null), 5000);
     } finally {
       setIsLoading(false);

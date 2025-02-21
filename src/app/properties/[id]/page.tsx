@@ -28,6 +28,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import BookingSection from "@/components/BookingSection";
 import SpinnerLoader from "@/components/SpinnerLoader";
 import UpdateSection from "@/components/Updatesection";
+import Image from "next/image";
 
 const amenityIcons: { [key: string]: JSX.Element } = {
   wifi: <Wifi className="h-5 w-5 text-primary" />,
@@ -117,10 +118,12 @@ export default function PropertyPage({ params }: { params: { id: string } }) {
                 <div className="grid grid-cols-2 gap-4">
                   {property?.images?.length ? (
                     property.images.map((image: string, index: number) => (
-                      <img
+                      <Image
                         key={index}
                         src={image}
                         alt={`${property.title} - Image ${index + 1}`}
+                        width={500}
+                        height={400}
                         className="w-full h-64 object-cover rounded-lg"
                       />
                     ))

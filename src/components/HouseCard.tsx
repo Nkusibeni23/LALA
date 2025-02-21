@@ -1,22 +1,35 @@
 "use client";
 
+import { useRef } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Heart, Bed, ShowerHead, Home, ImageOff } from "lucide-react";
 import { HouseCardProps } from "@/types/HomePage";
+import Image from "next/image";
 
 export const HouseCard = ({ house }: HouseCardProps) => {
+  const imgRef = useRef<HTMLImageElement | null>(null);
+
+  const handleLoadingComplete = () => {
+    if (imgRef.current) {
+      imgRef.current.classList.remove("opacity-0");
+    }
+  };
+
   return (
     <Card className="group hover:shadow-xl transition-shadow duration-300 cursor-pointer rounded-2xl overflow-hidden">
       <CardContent className="p-0">
         {/* Image Section */}
         <div className="relative w-full h-64 bg-gray-100 overflow-hidden">
           {house.images?.[0] ? (
-            <img
+            <Image
+              ref={imgRef}
               src={house.images[0]}
               alt={house.title}
+              width={800}
+              height={256}
               className="w-full h-full object-cover transition-opacity duration-500 opacity-0 group-hover:opacity-100"
-              onLoad={(e) => e.currentTarget.classList.remove("opacity-0")}
+              onLoadingComplete={handleLoadingComplete}
             />
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center text-gray-500">

@@ -40,7 +40,7 @@ export async function POST(req: NextRequest) {
         rooms: parseInt(rooms),
         bathrooms: parseInt(bathrooms),
         hostId: session.user.id,
-      } as any,
+      },
     });
 
     return NextResponse.json(property, { status: 201 });

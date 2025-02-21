@@ -43,7 +43,7 @@ export function Sidebar({
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isMobile, isSidebarOpen]);
+  }, [isMobile, isSidebarOpen, setIsSidebarOpen]);
 
   const menuItems = [
     { icon: Home, text: "Home", path: "/home" },

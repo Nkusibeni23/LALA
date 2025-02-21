@@ -48,7 +48,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
           </Button>
 
           <p className="text-sm text-gray-600 text-center">
-            Don't have an account?{" "}
+            Don&apos;t have an account?{" "}
             <button
               className="text-primary hover:underline focus:outline-none hover:font-bold"
               onClick={() => router.push("/auth/sign-up")}

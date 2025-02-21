@@ -29,12 +29,14 @@ export default function SignUpPage() {
         redirect: true,
         callbackUrl: "/home",
       });
-    } catch (error) {
-      console.error("Google sign-in error:", error);
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setValidationCardMessage(error.message);
+      }
     }
   };
 
-  const handleNameChange = (e: { target: { value: any } }) => {
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setName(e.target.value);
   };
 
@@ -81,21 +83,6 @@ export default function SignUpPage() {
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       router.push("/auth/sign-in");
-    } catch (error: any) {
-      setValidationCardType("error");
-
-      if (error.response) {
-        setValidationCardMessage(
-          error.response.data.error || "Failed to register."
-        );
-      } else if (error.request) {
-        setValidationCardMessage("No response from server. Please try again.");
-      } else {
-        setValidationCardMessage("An unexpected error occurred.");
-      }
-
-      setValidationCardVisible(true);
-      setTimeout(() => setValidationCardVisible(false), 3000);
     } finally {
       setIsLoading(false);
     }

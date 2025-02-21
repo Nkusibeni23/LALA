@@ -13,7 +13,7 @@ export default function SignInPage() {
   const [email, setEmail] = useState("");
   const [emailError, setEmailError] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const [validationCardVisible, setValidationCardVisible] = useState(false);
   const [validationCardType, setValidationCardType] = useState<
     "success" | "error" | "warning"
@@ -44,14 +44,14 @@ export default function SignInPage() {
   const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setPassword(value);
-    setError(
+    setPasswordError(
       value.length < 8 ? "Password must be at least 8 characters long." : ""
     );
   };
 
   const handleSubmit = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
-    if (emailError || error) return;
+    if (emailError || passwordError) return;
     setIsLoading(true);
 
     try {
@@ -203,7 +203,9 @@ export default function SignInPage() {
                 focus:border-transparent transition-all duration-300
                 "
               />
-              {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+              {passwordError && (
+                <p className="text-red-500 text-sm mt-1">{passwordError}</p>
+              )}
             </motion.div>
 
             <motion.button

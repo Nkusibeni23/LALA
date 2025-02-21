@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useEffect, useState } from "react";
 import {
   Dialog,
@@ -41,6 +43,7 @@ import {
 } from "@/types/Properties";
 import api from "@/lib/axios";
 import ValidationCard from "./ValidationCard";
+import Image from "next/image";
 
 const categories: Category[] = [
   { id: "beach", name: "Beach", icon: Palmtree },
@@ -176,7 +179,7 @@ const HostPropertyModal: React.FC<HostPropertyModalProps> = ({
       } = formData;
 
       if (mode === "create") {
-        const { data } = await api.post("/properties", {
+        await api.post("/properties", {
           category,
           title,
           description,
@@ -194,7 +197,7 @@ const HostPropertyModal: React.FC<HostPropertyModalProps> = ({
         });
         resetForm();
       } else if (mode === "update" && propertyId) {
-        const { data } = await api.put(`/properties/${propertyId}`, {
+        await api.put(`/properties/${propertyId}`, {
           category,
           title,
           description,
@@ -299,7 +302,7 @@ const HostPropertyModal: React.FC<HostPropertyModalProps> = ({
           <div className="space-y-6">
             <DialogHeader>
               <DialogTitle className="text-2xl font-bold">
-                Where's your place located?
+                Where&apos;s your place located?
               </DialogTitle>
               <DialogDescription>
                 Add the address of your property
@@ -383,10 +386,13 @@ const HostPropertyModal: React.FC<HostPropertyModalProps> = ({
                     key={index}
                     className="relative aspect-square rounded-lg overflow-hidden"
                   >
-                    <img
+                    <Image
                       src={image}
                       alt={`Property ${index + 1}`}
                       className="object-cover w-full h-full"
+                      layout="responsive"
+                      width={500}
+                      height={500}
                     />
                     <Button
                       variant="destructive"
