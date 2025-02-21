@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
     );
   }
 }
-export async function GET(req: NextRequest) {
+export async function GET() {
   try {
     const session = await getServerSession(authOptions);
 
@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
     });
 
     return NextResponse.json(notifications);
-  } catch (error) {
+  } catch (error: unknown) {
     console.error("Error fetching notifications:", error);
     return NextResponse.json(
       { error: "Internal Server Error" },

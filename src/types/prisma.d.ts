@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Prisma, Notification } from "@prisma/client";
 
 declare global {
   namespace PrismaJson {
@@ -17,8 +17,11 @@ declare module "@prisma/client" {
     notification: {
       create: (args: {
         data: PrismaJson.NotificationCreateInput;
-      }) => Promise<any>;
-      findMany: (args?: { where?: any; orderBy?: any }) => Promise<any[]>;
+      }) => Promise<Notification>;
+      findMany: (args?: {
+        where?: Prisma.NotificationWhereInput;
+        orderBy?: Prisma.NotificationOrderByInput;
+      }) => Promise<Notification[]>;
     };
   }
 }

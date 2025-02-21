@@ -8,6 +8,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import HostPropertyModal from "./HostModal";
 import NotificationPopover from "./NotificationPopover";
+import Image from "next/image";
 
 interface NavbarProps {
   searchTerm: string;
@@ -105,10 +106,12 @@ export function Navbar({
             {session ? (
               <div className="flex items-center gap-2">
                 {session.user?.image ? (
-                  <img
+                  <Image
                     src={session.user.image}
                     alt={session.user.name || "User"}
-                    className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover border border-gray-300"
+                    width={48} // Provide width for image
+                    height={48} // Provide height for image
+                    className="rounded-full object-cover border border-gray-300"
                   />
                 ) : (
                   <div

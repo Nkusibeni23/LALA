@@ -25,7 +25,7 @@ export default function SignUpPage() {
 
   const handleGoogleSignIn = async () => {
     try {
-      const result = await signIn("google", {
+      await signIn("google", {
         redirect: true,
         callbackUrl: "/home",
       });
@@ -40,7 +40,7 @@ export default function SignUpPage() {
     setName(e.target.value);
   };
 
-  const handleEmailChange = (e: { target: { value: any } }) => {
+  const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setEmail(value);
 
@@ -50,7 +50,7 @@ export default function SignUpPage() {
     );
   };
 
-  const handlePasswordChange = (e: { target: { value: any } }) => {
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setPassword(value);
     setError(
@@ -58,7 +58,7 @@ export default function SignUpPage() {
     );
   };
 
-  const handleRoleChange = (e: { target: { value: any } }) => {
+  const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setRole(e.target.value);
   };
 
@@ -70,7 +70,7 @@ export default function SignUpPage() {
     setIsLoading(true);
 
     try {
-      const { data } = await api.post("/signup", {
+      await api.post("/signup", {
         name,
         email,
         password,

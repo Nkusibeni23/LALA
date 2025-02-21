@@ -39,7 +39,6 @@ export default function NotificationPopover() {
   >([]);
   const [isLoading, setIsLoading] = useState(true);
   const [visibleNotifications, setVisibleNotifications] = useState(5);
-  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [validation, setValidation] = useState<{
     show: boolean;
     type: "success" | "error";
@@ -77,7 +76,7 @@ export default function NotificationPopover() {
     setTimeout(() => setValidation(null), 3000);
   };
 
-  const handleApprove = async (bookingId: string, notificationId: number) => {
+  const handleApprove = async (bookingId: string) => {
     try {
       const response = await api.put(`/bookings/${bookingId}`, {
         status: "CONFIRMED",
@@ -100,7 +99,7 @@ export default function NotificationPopover() {
     }
   };
 
-  const handleDecline = async (bookingId: string, notificationId: number) => {
+  const handleDecline = async (bookingId: string) => {
     try {
       const response = await api.put(`/bookings/${bookingId}`, {
         status: "CANCELED",
@@ -146,20 +145,9 @@ export default function NotificationPopover() {
     }
   };
 
-  const handlePopoverOpen = () => {
-    setIsPopoverOpen(true);
-  };
-
   return (
     <>
-      <Popover
-        onOpenChange={(open) => {
-          if (open) {
-            handlePopoverOpen();
-          }
-          setIsPopoverOpen(open);
-        }}
-      >
+      <Popover>
         <PopoverTrigger asChild>
           <button className="relative p-2 rounded-full hover:bg-gray-300 transition">
             <Bell className="w-6 h-6 text-gray-700" />
@@ -241,9 +229,7 @@ export default function NotificationPopover() {
                             variant="outline"
                             size="sm"
                             className="bg-white text-gray-800 hover:bg-gray-800 hover:text-white"
-                            onClick={() =>
-                              handleApprove(notif.bookingId!, notif.id)
-                            }
+                            onClick={() => handleApprove(notif.bookingId!)}
                           >
                             Approve
                           </Button>
@@ -251,9 +237,7 @@ export default function NotificationPopover() {
                             variant="outline"
                             size="sm"
                             className="bg-white text-gray-800 hover:bg-red-600 hover:text-white"
-                            onClick={() =>
-                              handleDecline(notif.bookingId!, notif.id)
-                            }
+                            onClick={() => handleDecline(notif.bookingId!)}
                           >
                             Decline
                           </Button>

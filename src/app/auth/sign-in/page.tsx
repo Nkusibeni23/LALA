@@ -22,7 +22,7 @@ export default function SignInPage() {
 
   const handleGoogleSignIn = async () => {
     try {
-      const result = await signIn("google", {
+      await signIn("google", {
         redirect: true,
         callbackUrl: "/home",
       });
@@ -75,6 +75,7 @@ export default function SignInPage() {
         router.push("/");
       }
     } catch (error: unknown) {
+      console.error("Error during sign-in:", error);
       setValidationCardType("error");
       setValidationCardMessage("An error occurred during sign in.");
       setValidationCardVisible(true);
