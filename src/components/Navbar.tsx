@@ -24,12 +24,18 @@ const userColors = [
   "bg-pink-500",
   "bg-indigo-500",
   "bg-teal-500",
-  "bg-gray-800",
 ];
 
+function hashStringToIndex(str: string) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = str.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  return Math.abs(hash) % userColors.length;
+}
+
 function getUserColor(userId: string) {
-  const index = userId.charCodeAt(0) % userColors.length;
-  return userColors[index];
+  return userColors[hashStringToIndex(userId)];
 }
 
 export function Navbar({
