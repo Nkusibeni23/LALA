@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import SpinnerLoader from "./SpinnerLoader";
 import { motion, AnimatePresence } from "framer-motion";
 import { iconMap } from "@/types/Validation";
+import api from "@/lib/axios";
 
 const colors = {
   success: "bg-green-100 text-green-800 border-green-400",
@@ -78,15 +79,11 @@ export default function NotificationPopover() {
 
   const handleApprove = async (bookingId: string, notificationId: number) => {
     try {
-      const response = await fetch(`/api/bookings/${bookingId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status: "CONFIRMED" }),
+      const response = await api.put(`/bookings/${bookingId}`, {
+        status: "CONFIRMED",
       });
 
-      if (response.ok) {
+      if (response.status === 200) {
         setNotifications((prevNotifications) =>
           prevNotifications.map((notif) =>
             notif.bookingId === bookingId
@@ -105,15 +102,11 @@ export default function NotificationPopover() {
 
   const handleDecline = async (bookingId: string, notificationId: number) => {
     try {
-      const response = await fetch(`/api/bookings/${bookingId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status: "CANCELED" }),
+      const response = await api.put(`/bookings/${bookingId}`, {
+        status: "CANCELED",
       });
 
-      if (response.ok) {
+      if (response.status === 200) {
         setNotifications((prevNotifications) =>
           prevNotifications.map((notif) =>
             notif.bookingId === bookingId
@@ -204,11 +197,11 @@ export default function NotificationPopover() {
                   <li
                     key={notif.id}
                     className={`p-3 rounded-lg text-sm ${
-                      notif.isRead ? "bg-gray-100" : "bg-white"
-                    } hover:bg-gray-200 transition-colors`}
+                      notif.isRead ? "bg-gray-100" : "bg-gray-100"
+                    } hover:bg-gray-300 duration-300 transition-colors`}
                   >
                     <div className="flex flex-col gap-1">
-                      <p className="font-semibold">{notif.message}</p>
+                      <p className="font-bold">{notif.message}</p>
                       {notif.data && (
                         <div className="text-xs text-gray-500">
                           {notif.data.checkIn && (
@@ -228,7 +221,7 @@ export default function NotificationPopover() {
                             </p>
                           )}
                           {notif.data.totalPrice && (
-                            <p>
+                            <p className="font-semibold">
                               Total: ${notif.data.totalPrice.toLocaleString()}
                             </p>
                           )}
@@ -291,7 +284,7 @@ export default function NotificationPopover() {
             exit={{ opacity: 0, y: -20 }}
             className={`fixed top-4 right-4 p-4 rounded-lg border z-50 ${
               colors[validation.type]
-            } shadow-lg z-50`}
+            } shadow-lg z-50 transition-all duration-300`}
           >
             <div className="flex items-center gap-2">
               {iconMap[validation.type]}

@@ -36,7 +36,6 @@ export async function PUT(
       );
     }
 
-    // Update the booking status
     const updatedBooking = await prisma.booking.update({
       where: { id: params.id },
       data: { status },

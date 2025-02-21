@@ -51,16 +51,23 @@ export async function POST(req: NextRequest) {
     const overlappingBooking = await prisma.booking.findFirst({
       where: {
         propertyId,
-        status: { not: "CANCELED" },
+        status: { in: ["CONFIRMED", "PENDING"] },
         OR: [
-          { checkIn: { lte: checkOutDate }, checkOut: { gte: checkInDate } },
+          {
+            AND: [
+              { checkIn: { lte: checkOutDate } },
+              { checkOut: { gte: checkInDate } },
+            ],
+          },
         ],
       },
     });
 
     if (overlappingBooking) {
       return NextResponse.json(
-        { error: "Property already booked for selected dates" },
+        {
+          error: "Property already booked for selected dates",
+        },
         { status: 409 }
       );
     }
@@ -80,6 +87,20 @@ export async function POST(req: NextRequest) {
         status: "PENDING",
         totalPrice,
       } as Prisma.BookingUncheckedCreateInput,
+    });
+
+    await prisma.notification.create({
+      data: {
+        userId: property.hostId,
+        message: `New booking request received for your property`,
+        type: "booking_request_host",
+        bookingId: booking.id,
+        data: {
+          checkIn: checkInDate.toISOString(),
+          checkOut: checkOutDate.toISOString(),
+          totalPrice: totalPrice,
+        },
+      },
     });
 
     return NextResponse.json(booking, { status: 201 });
