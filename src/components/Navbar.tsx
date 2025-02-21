@@ -15,6 +15,23 @@ interface NavbarProps {
   setIsSidebarOpen: Dispatch<SetStateAction<boolean>>;
 }
 
+const userColors = [
+  "bg-red-500",
+  "bg-blue-500",
+  "bg-green-500",
+  "bg-yellow-500",
+  "bg-purple-500",
+  "bg-pink-500",
+  "bg-indigo-500",
+  "bg-teal-500",
+  "bg-gray-800",
+];
+
+function getUserColor(userId: string) {
+  const index = userId.charCodeAt(0) % userColors.length;
+  return userColors[index];
+}
+
 export function Navbar({
   searchTerm,
   setSearchTerm,
@@ -81,7 +98,13 @@ export function Navbar({
             {/* User Profile or Login */}
             {session ? (
               <div className="flex items-center gap-2">
-                <div className="w-10 h-10 md:w-12 md:h-12 flex items-center justify-center bg-gray-900 text-white rounded-full text-lg font-bold cursor-pointer">
+                <div
+                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center text-white rounded-full text-lg font-bold cursor-pointer ${
+                    session.user?.id
+                      ? getUserColor(session.user.id)
+                      : "bg-gray-900"
+                  }`}
+                >
                   {session.user?.name
                     ? session.user.name.charAt(0).toUpperCase()
                     : "U"}
