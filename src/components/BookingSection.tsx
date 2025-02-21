@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
 import { Calendar } from "@/components/ui/calendar";
 import {
@@ -20,12 +20,22 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { DateRange } from "react-day-picker";
-import { addDays, isWithinInterval, differenceInDays } from "date-fns";
+import {
+  addDays,
+  isWithinInterval,
+  differenceInDays,
+  isSameDay,
+} from "date-fns";
 import { useSession } from "next-auth/react";
 import LoginModal from "./LoginModal";
 import ValidationCard from "./ValidationCard";
 import api from "@/lib/axios";
-import { BookingResponse, BookingSectionProps } from "@/types/Booking";
+import {
+  BookedDate,
+  Booking,
+  BookingResponse,
+  BookingSectionProps,
+} from "@/types/Booking";
 
 export default function BookingSection({ property }: BookingSectionProps) {
   const { data: session } = useSession();
@@ -33,6 +43,7 @@ export default function BookingSection({ property }: BookingSectionProps) {
   const [date, setDate] = useState<DateRange | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
+  const [bookedDates, setBookedDates] = useState<BookedDate[]>([]);
   const [validation, setValidation] = useState<{
     type: "success" | "error" | "warning";
     message: string;
@@ -81,7 +92,6 @@ export default function BookingSection({ property }: BookingSectionProps) {
         return;
       }
 
-      // Guest notification
       await api.post("/notification", {
         userId: session.user.id,
         message: `Your booking request for ${property.title} has been submitted!`,
@@ -134,6 +144,45 @@ export default function BookingSection({ property }: BookingSectionProps) {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    const fetchBookedDates = async () => {
+      try {
+        const response = await api.get<Booking[]>(
+          `/bookings/property/${property.id}`
+        );
+        const bookings = response.data;
+
+        setBookedDates(
+          bookings.map((booking) => ({
+            checkIn: new Date(booking.checkIn),
+            checkOut: new Date(booking.checkOut),
+          }))
+        );
+      } catch (error) {
+        console.error("Error fetching booked dates:", error);
+      }
+    };
+
+    fetchBookedDates();
+  }, [property.id]);
+
+  const isDateBooked = (date: Date) => {
+    return bookedDates.some((booking) =>
+      isWithinInterval(date, {
+        start: booking.checkIn,
+        end: booking.checkOut,
+      })
+    );
+  };
+
+  const isBookingBoundary = (date: Date) => {
+    return bookedDates.some(
+      (booking) =>
+        isSameDay(date, booking.checkIn) || isSameDay(date, booking.checkOut)
+    );
+  };
+
   const isRangeMiddleDay = (day: Date) => {
     if (!date?.from || !date?.to) return false;
     return isWithinInterval(day, {
@@ -164,7 +213,6 @@ export default function BookingSection({ property }: BookingSectionProps) {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {/* Select Dates Button */}
             {session ? (
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
@@ -192,7 +240,8 @@ export default function BookingSection({ property }: BookingSectionProps) {
                   <DialogHeader>
                     <DialogTitle>Select your stay dates</DialogTitle>
                     <DialogDescription>
-                      Choose your check-in and check-out dates
+                      Choose your check-in and check-out dates. Booked dates are
+                      disabled.
                     </DialogDescription>
                   </DialogHeader>
                   <div className="py-4">
@@ -203,14 +252,33 @@ export default function BookingSection({ property }: BookingSectionProps) {
                       selected={date}
                       onSelect={setDate}
                       numberOfMonths={1}
-                      disabled={{ before: new Date() }}
+                      disabled={(date) => {
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        return date < today || isDateBooked(date);
+                      }}
                       modifiers={{
                         range_middle: isRangeMiddleDay,
+                        booked: (date) => isDateBooked(date),
+                        booking_boundary: (date) => isBookingBoundary(date),
                       }}
                       modifiersStyles={{
                         range_middle: {
-                          backgroundColor: "#BFBFBF",
-                          color: "#000000",
+                          backgroundColor: "#E5E7EB",
+                          color: "#111827",
+                        },
+                        booked: {
+                          backgroundColor: "#FEE2E2",
+                          color: "#991B1B",
+                          fontWeight: "500",
+                          textDecoration: "none",
+                          position: "relative",
+                        },
+                        booking_boundary: {
+                          backgroundColor: "#FEE2E2",
+                          color: "#991B1B",
+                          border: "2px solid #991B1B",
+                          fontWeight: "bold",
                         },
                       }}
                       classNames={{
