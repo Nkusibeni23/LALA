@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import ValidationCard from "@/components/ValidationCard";
 import { FcGoogle } from "react-icons/fc";
 import { signIn } from "next-auth/react";
+import api from "@/lib/axios";
 
 export default function SignUpPage() {
   const [name, setName] = useState("");
@@ -23,7 +24,14 @@ export default function SignUpPage() {
   const [validationCardMessage, setValidationCardMessage] = useState("");
 
   const handleGoogleSignIn = async () => {
-    await signIn("google", { callbackUrl: "/" });
+    try {
+      const result = await signIn("google", {
+        redirect: true,
+        callbackUrl: "/home",
+      });
+    } catch (error) {
+      console.error("Google sign-in error:", error);
+    }
   };
 
   const handleNameChange = (e: { target: { value: any } }) => {
@@ -60,21 +68,12 @@ export default function SignUpPage() {
     setIsLoading(true);
 
     try {
-      const response = await fetch("/api/signup", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password, role }),
+      const { data } = await api.post("/signup", {
+        name,
+        email,
+        password,
+        role,
       });
-
-      const data = await response.json();
-
-      if (!response.ok) {
-        setValidationCardType("error");
-        setValidationCardMessage(data.error || "Failed to register.");
-        setValidationCardVisible(true);
-        setTimeout(() => setValidationCardVisible(false), 3000);
-        return;
-      }
 
       setValidationCardType("success");
       setValidationCardMessage("Sign-up successful! Redirecting...");
@@ -82,9 +81,19 @@ export default function SignUpPage() {
       await new Promise((resolve) => setTimeout(resolve, 1500));
 
       router.push("/auth/sign-in");
-    } catch (error) {
+    } catch (error: any) {
       setValidationCardType("error");
-      setValidationCardMessage("An error occurred during sign-up.");
+
+      if (error.response) {
+        setValidationCardMessage(
+          error.response.data.error || "Failed to register."
+        );
+      } else if (error.request) {
+        setValidationCardMessage("No response from server. Please try again.");
+      } else {
+        setValidationCardMessage("An unexpected error occurred.");
+      }
+
       setValidationCardVisible(true);
       setTimeout(() => setValidationCardVisible(false), 3000);
     } finally {

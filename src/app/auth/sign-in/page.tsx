@@ -20,8 +20,15 @@ export default function SignInPage() {
   >("success");
   const [validationCardMessage, setValidationCardMessage] = useState("");
 
-  const handleGoogleSignIn = () => {
-    signIn("google", { callbackUrl: "/" });
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await signIn("google", {
+        redirect: true,
+        callbackUrl: "/home",
+      });
+    } catch (error) {
+      console.error("Google sign-in error:", error);
+    }
   };
 
   const handleEmailChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -52,6 +59,7 @@ export default function SignInPage() {
         email,
         password,
         redirect: false,
+        callbackUrl: "/home",
       });
 
       if (response?.error) {
