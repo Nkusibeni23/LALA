@@ -128,7 +128,7 @@ export default function HomePage() {
               ))
             ) : (
               <p className="col-span-full text-center text-lg font-bold text-gray-600">
-                No houses found matching your search
+                No houses found
               </p>
             )}
           </div>

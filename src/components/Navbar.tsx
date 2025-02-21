@@ -104,17 +104,25 @@ export function Navbar({
             {/* User Profile or Login */}
             {session ? (
               <div className="flex items-center gap-2">
-                <div
-                  className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center text-white rounded-full text-lg font-bold cursor-pointer ${
-                    session.user?.id
-                      ? getUserColor(session.user.id)
-                      : "bg-gray-900"
-                  }`}
-                >
-                  {session.user?.name
-                    ? session.user.name.charAt(0).toUpperCase()
-                    : "U"}
-                </div>
+                {session.user?.image ? (
+                  <img
+                    src={session.user.image}
+                    alt={session.user.name || "User"}
+                    className="w-10 h-10 md:w-12 md:h-12 rounded-full object-cover border border-gray-300"
+                  />
+                ) : (
+                  <div
+                    className={`w-10 h-10 md:w-12 md:h-12 flex items-center justify-center text-white rounded-full text-lg font-bold cursor-pointer ${
+                      session.user?.id
+                        ? getUserColor(session.user.id)
+                        : "bg-gray-900"
+                    }`}
+                  >
+                    {session.user?.name
+                      ? session.user.name.charAt(0).toUpperCase()
+                      : "U"}
+                  </div>
+                )}
               </div>
             ) : (
               <Button
