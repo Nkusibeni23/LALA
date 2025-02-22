@@ -1,8 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Calendar as CalendarIcon, Loader2 } from "lucide-react";
-import { Calendar } from "@/components/ui/calendar";
 import {
   Dialog,
   DialogContent,
@@ -20,38 +19,31 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { DateRange } from "react-day-picker";
-import {
-  addDays,
-  isWithinInterval,
-  differenceInDays,
-  isSameDay,
-} from "date-fns";
+import { differenceInDays } from "date-fns";
 import { useSession } from "next-auth/react";
 import LoginModal from "./LoginModal";
 import ValidationCard from "./ValidationCard";
 import api from "@/lib/axios";
 import {
   BookedDate,
-  Booking,
   BookingResponse,
   BookingSectionProps,
 } from "@/types/Booking";
+import BookingCalendar from "./BookingCalendar";
 
 export default function BookingSection({ property }: BookingSectionProps) {
   const { data: session } = useSession();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [date, setDate] = useState<DateRange | undefined>(undefined);
   const [isLoading, setIsLoading] = useState(false);
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [bookedDates, setBookedDates] = useState<BookedDate[]>([]);
+  const [date, setDate] = useState<DateRange | undefined>();
   const [validation, setValidation] = useState<{
     type: "success" | "error" | "warning";
     message: string;
   } | null>(null);
-
-  const totalNights =
-    date?.from && date?.to ? differenceInDays(date.to, date.from) : 0;
-  const totalPrice = totalNights * property.price;
+  const bookingCountRef = useRef(0);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const handleDateConfirm = () => {
     setIsLoading(true);
@@ -61,19 +53,55 @@ export default function BookingSection({ property }: BookingSectionProps) {
     }, 500);
   };
 
-  const handleBookingRequest = async () => {
-    if (!session || !date?.from || !date?.to) {
-      setValidation({
-        type: "error",
-        message: "Please select valid dates and ensure you are logged in.",
-      });
-      setTimeout(() => setValidation(null), 3000);
-      return;
-    }
+  useEffect(() => {
+    bookingCountRef.current = bookedDates.length;
+  }, [bookedDates]);
 
-    setIsLoading(true);
+  const fetchBookedDates = async () => {
+    try {
+      setIsLoading(true);
+
+      const response = await api.get<BookingResponse[]>(
+        `/bookings/property/${property.id}`
+      );
+
+      const activeBookings = response.data
+        .filter((booking) => booking.status !== "CANCELLED")
+        .map((booking) => ({
+          id: booking.id,
+          checkIn: booking.checkIn,
+          checkOut: booking.checkOut,
+          status: booking.status,
+        }));
+
+      setBookedDates(activeBookings);
+    } catch (error) {
+      console.error("Error fetching dates:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBookedDates();
+  }, [property.id, refreshKey]);
+
+  const totalNights = React.useMemo(() => {
+    if (date?.from && date?.to) {
+      return differenceInDays(date.to, date.from);
+    }
+    return 0;
+  }, [date?.from, date?.to]);
+
+  const totalPrice = React.useMemo(() => {
+    return totalNights * property.price;
+  }, [totalNights, property.price]);
+
+  const handleBookingRequest = async () => {
+    if (!session || !date?.from || !date?.to) return;
 
     try {
+      setIsLoading(true);
       const response = await api.post<BookingResponse>("/bookings", {
         propertyId: property.id,
         userId: session.user.id,
@@ -82,115 +110,19 @@ export default function BookingSection({ property }: BookingSectionProps) {
         totalPrice,
       });
 
-      if (response.status === 409) {
-        setValidation({
-          type: "error",
-          message:
-            "Property already booked for selected dates. Please choose different dates.",
-        });
-        setTimeout(() => setValidation(null), 5000);
-        return;
-      }
-
-      await api.post("/notification", {
-        userId: session.user.id,
-        message: `Your booking request for ${property.title} has been submitted!`,
-        type: "booking_request_guest",
-        bookingId: response.data.id,
-        data: {
-          checkIn: date.from.toISOString(),
-          checkOut: date.to.toISOString(),
-          totalPrice,
-        },
-      });
-
-      await api.post("/notification", {
-        userId: property.hostId,
-        message: `New booking request received for ${property.title}`,
-        type: "booking_request_host",
-        bookingId: response.data.id,
-        data: {
-          guestName: session.user.name,
-          checkIn: date.from.toISOString(),
-          checkOut: date.to.toISOString(),
-          totalPrice,
-        },
-      });
+      setRefreshKey((prev) => prev + 1);
 
       setValidation({
         type: "success",
         message: "Booking request submitted successfully!",
       });
-      setTimeout(() => setValidation(null), 3000);
       setDate(undefined);
-    } catch (error: unknown) {
-      console.error("Error creating booking:", error);
-
-      if (error instanceof Error) {
-        setValidation({
-          type: "error",
-          message:
-            error.message || "An unexpected error occurred. Please try again.",
-        });
-      } else {
-        setValidation({
-          type: "error",
-          message: "An unexpected error occurred. Please try again.",
-        });
-      }
-
-      setTimeout(() => setValidation(null), 5000);
+    } catch (error) {
+      console.error("Booking error:", error);
     } finally {
       setIsLoading(false);
     }
   };
-
-  useEffect(() => {
-    const fetchBookedDates = async () => {
-      try {
-        const response = await api.get<Booking[]>(
-          `/bookings/property/${property.id}`
-        );
-        const bookings = response.data;
-
-        setBookedDates(
-          bookings.map((booking) => ({
-            checkIn: new Date(booking.checkIn),
-            checkOut: new Date(booking.checkOut),
-          }))
-        );
-      } catch (error) {
-        console.error("Error fetching booked dates:", error);
-      }
-    };
-
-    fetchBookedDates();
-  }, [property.id]);
-
-  const isDateBooked = (date: Date) => {
-    return bookedDates.some((booking) =>
-      isWithinInterval(date, {
-        start: booking.checkIn,
-        end: booking.checkOut,
-      })
-    );
-  };
-
-  const isBookingBoundary = (date: Date) => {
-    return bookedDates.some(
-      (booking) =>
-        isSameDay(date, booking.checkIn) || isSameDay(date, booking.checkOut)
-    );
-  };
-
-  const isRangeMiddleDay = (day: Date) => {
-    if (!date?.from || !date?.to) return false;
-    return isWithinInterval(day, {
-      start: addDays(date.from, 1),
-      end: addDays(date.to, -1),
-    });
-  };
-
   const handleSelectDatesClick = () => {
     if (!session) {
       setShowLoginModal(true);
@@ -245,48 +177,13 @@ export default function BookingSection({ property }: BookingSectionProps) {
                     </DialogDescription>
                   </DialogHeader>
                   <div className="py-4">
-                    <Calendar
-                      initialFocus
-                      mode="range"
-                      defaultMonth={new Date()}
-                      selected={date}
-                      onSelect={setDate}
-                      numberOfMonths={1}
-                      disabled={(date) => {
-                        const today = new Date();
-                        today.setHours(0, 0, 0, 0);
-                        return date < today || isDateBooked(date);
-                      }}
-                      modifiers={{
-                        range_middle: isRangeMiddleDay,
-                        booked: (date) => isDateBooked(date),
-                        booking_boundary: (date) => isBookingBoundary(date),
-                      }}
-                      modifiersStyles={{
-                        range_middle: {
-                          backgroundColor: "#E5E7EB",
-                          color: "#111827",
-                        },
-                        booked: {
-                          backgroundColor: "#FEE2E2",
-                          color: "#991B1B",
-                          fontWeight: "500",
-                          textDecoration: "none",
-                          position: "relative",
-                        },
-                        booking_boundary: {
-                          backgroundColor: "#FEE2E2",
-                          color: "#991B1B",
-                          border: "2px solid #991B1B",
-                          fontWeight: "bold",
-                        },
-                      }}
-                      classNames={{
-                        day_selected: "bg-black text-white font-semibold",
-                        day_disabled: "bg-gray-300 text-gray-800",
-                        day_today: "bg-gray-400 text-black",
-                        day_outside: "text-gray-400",
-                      }}
+                    <BookingCalendar
+                      key={bookedDates.length}
+                      property={property}
+                      session={session}
+                      date={date}
+                      setDate={setDate}
+                      bookedDates={bookedDates}
                     />
                   </div>
                   {/* Booking Summary */}

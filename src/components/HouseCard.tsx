@@ -10,7 +10,7 @@ import Image from "next/image";
 export const HouseCard = ({ house }: HouseCardProps) => {
   const imgRef = useRef<HTMLImageElement | null>(null);
 
-  const handleLoadingComplete = () => {
+  const handleImageLoad = () => {
     if (imgRef.current) {
       imgRef.current.classList.remove("opacity-0");
     }
@@ -29,7 +29,7 @@ export const HouseCard = ({ house }: HouseCardProps) => {
               width={800}
               height={256}
               className="w-full h-full object-cover transition-opacity duration-500 opacity-0 group-hover:opacity-100"
-              onLoadingComplete={handleLoadingComplete}
+              onLoad={handleImageLoad}
             />
           ) : (
             <div className="w-full h-full flex flex-col items-center justify-center text-gray-500">

@@ -74,7 +74,6 @@ export default function UpdateSection({ propertyId }: { propertyId: string }) {
             Update Your Place
           </Button>
 
-          {/* Delete Your Place Button */}
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button

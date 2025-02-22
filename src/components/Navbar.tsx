@@ -102,15 +102,14 @@ export function Navbar({
               </Button>
             )}
 
-            {/* User Profile or Login */}
             {session ? (
               <div className="flex items-center gap-2">
                 {session.user?.image ? (
                   <Image
                     src={session.user.image}
                     alt={session.user.name || "User"}
-                    width={48} // Provide width for image
-                    height={48} // Provide height for image
+                    width={48}
+                    height={48}
                     className="rounded-full object-cover border border-gray-300"
                   />
                 ) : (
