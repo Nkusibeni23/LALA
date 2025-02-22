@@ -123,26 +123,26 @@ The app should run at http://localhost:3000 🚀.
 
 ### **6. Project Structure**
 
-lala/
-├── app/
-│ ├── api/ # API routes
-│ ├── auth/ # Authentication logic
-│ ├── components/ # Reusable components
-│ ├── lib/ # Utility functions
-│ ├── store/ # Redux store
-│ ├── styles/ # Global styles
-│ └── page.tsx # Main page
-├── prisma/ # Prisma schema and migrations
-├── public/ # Static assets
-├── tailwind.config.js # Tailwind CSS configuration
-├── next.config.js # Next.js configuration
-├── package.json # Project dependencies
-└── README.md # Project documentation
+- lala/
+- ├── app/
+- │ ├── api/ # API routes
+- │ ├── auth/ # Authentication logic
+- │ ├── components/ # Reusable components
+- │ ├── lib/ # Utility functions
+- │ ├── store/ # Redux store
+- │ ├── styles/ # Global styles
+- │ └── page.tsx # Main page
+- ├── prisma/ # Prisma schema and migrations
+- ├── public/ # Static assets
+- ├── tailwind.config.js # Tailwind CSS configuration
+- ├── next.config.js # Next.js configuration
+- ├── package.json # Project dependencies
+- └── README.md # Project documentation
 
 ### **7. Useful Resources**
 
-- Tailwind CSS Documentation
-- Next.js Documentation
-- Prisma Documentation
-- Redux Toolkit Docs
-- Cloudinary Docs
+- **Tailwind CSS Documentation**
+- **Next.js Documentation**
+- **Prisma Documentation**
+- **Redux Toolkit Docs**
+- **Cloudinary Docs**
