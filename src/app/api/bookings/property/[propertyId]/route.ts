@@ -1,8 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import prisma from "@/lib/prisma";
 
-export async function GET({ params }: { params: { propertyId: string } }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { propertyId: string } }
+) {
   const startTime = Date.now();
+  console.log(
+    `[${startTime}] Starting GET request for property:`,
+    params.propertyId
+  );
 
   try {
     const allBookingsInDB = await prisma.booking.findMany({
@@ -23,6 +30,8 @@ export async function GET({ params }: { params: { propertyId: string } }) {
       return acc;
     }, {} as Record<string, number>);
 
+    console.log("Bookings by status:", statusCounts);
+
     return NextResponse.json(activeBookings);
   } catch (error) {
     console.error("Error in GET bookings:", error);
@@ -36,9 +45,11 @@ export async function GET({ params }: { params: { propertyId: string } }) {
 
 export async function POST(request: NextRequest) {
   const startTime = Date.now();
+  console.log(`[${startTime}] Starting POST request for new booking`);
 
   try {
     const body = await request.json();
+    console.log("Received booking request:", body);
 
     const existingBookings = await prisma.booking.findMany({
       where: {
@@ -61,7 +72,10 @@ export async function POST(request: NextRequest) {
       },
     });
 
+    console.log("Existing bookings for this date range:", existingBookings);
+
     if (existingBookings.length > 0) {
+      console.log("Booking dates conflict found");
       return NextResponse.json(
         { error: "Dates already booked" },
         { status: 409 }
@@ -78,6 +92,8 @@ export async function POST(request: NextRequest) {
         status: "PENDING",
       },
     });
+
+    console.log("New booking created:", newBooking);
 
     return NextResponse.json(newBooking);
   } catch (error) {
