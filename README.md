@@ -2,6 +2,8 @@
 
 Welcome to **LaLa**, a seamless rental booking platform designed to provide users with an intuitive and efficient way to browse, book, and manage rental properties. This project showcases a modern full-stack implementation using **Next.js 14**, **PostgreSQL**, **Prisma**, **Tailwind CSS**, **Framer Motion**, **Cloudinary**, **Google Auth**, **shadcn/ui**, and **Redux**.
 
+---
+
 ## Features
 
 - **User Authentication**: Secure login and registration using **Google Auth**.
@@ -17,39 +19,40 @@ Welcome to **LaLa**, a seamless rental booking platform designed to provide user
 
 ## Technologies Used
 
-- **Frontend**:
+### **Frontend**
 
-  - Next.js 14
-  - Tailwind CSS
-  - shadcn/ui
-  - Framer Motion
-  - Redux
+- Next.js 14
+- Tailwind CSS
+- shadcn/ui
+- Framer Motion
+- Redux
 
-- **Backend**:
+### **Backend**
 
-  - Next.js API Routes
-  - Prisma ORM
-  - PostgreSQL
+- Next.js API Routes
+- Prisma ORM
+- PostgreSQL
 
-- **Authentication**:
+### **Authentication**
 
-  - Google Auth
+- Google Auth
 
-- **Image Hosting**:
+### **Image Hosting**
 
-  - Cloudinary
+- Cloudinary
 
-- **State Management**:
+### **State Management**
 
-  - Redux
+- Redux
 
-- **Styling**:
+### **Styling**
 
-  - Tailwind CSS
-  - shadcn/ui
+- Tailwind CSS
+- shadcn/ui
 
-- **Animations**:
-  - Framer Motion
+### **Animations**
+
+- Framer Motion
 
 ---
 
@@ -69,11 +72,14 @@ Before running the project locally, ensure you have the following installed:
 
 Follow these steps to set up and run the project locally:
 
-### 1. Clone the Repository
+### **1. Clone the Repository**
 
 ```bash
 git clone https://github.com/Nkusibeni23/LALA.git
+cd LALA
 ```
+
+### **2. Install Dependecies**
 
 npm install
 
@@ -89,21 +95,23 @@ pnpm install
 
 bun install
 
-Ensure your project run http://localhost:3000
+### **3. Create .env**
 
-# Create a .env
+- DATABASE_URL="postgresql://user:password@localhost:5432/lala_db"
+- GOOGLE_CLIENT_ID=your-google-client-id
+- GOOGLE_CLIENT_SECRET=your-google-client-secret
+- NEXTAUTH_SECRET=your-secret-key
+- NEXTAUTH_URL=http://localhost:3000
+- CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
+- CLOUDINARY_API_KEY=your-cloudinary-api-key
+- CLOUDINARY_API_SECRET=your-cloudinary-api-secret
 
-DATABASE_URL="postgresql://user:password@localhost:5432/lala_db"
-GOOGLE_CLIENT_ID=your-google-client-id
-GOOGLE_CLIENT_SECRET=your-google-client-secret
-NEXTAUTH_SECRET=your-secret-key
-NEXTAUTH_URL=http://localhost:3000
-CLOUDINARY_CLOUD_NAME=your-cloudinary-cloud-name
-CLOUDINARY_API_KEY=your-cloudinary-api-key
-CLOUDINARY_API_SECRET=your-cloudinary-api-secret
+### **4. Set Up Database**
 
-npx prisma generate
-npx prisma migrate dev --name init
+- npx prisma generate
+- npx prisma migrate dev --name init
+
+### **5. Run the Development Server**
 
 npm run dev
 
@@ -111,7 +119,9 @@ npm run dev
 
 yarn dev
 
-# or
+The app should run at http://localhost:3000 🚀.
+
+### **6. Project Structure**
 
 lala/
 ├── app/
@@ -129,14 +139,10 @@ lala/
 ├── package.json # Project dependencies
 └── README.md # Project documentation
 
-🔗 Useful Resources
+### **7. Useful Resources**
 
-Tailwind CSS Documentation
-
-Next.js Documentation
-
-Prisma Documentation
-
-Redux Toolkit Docs
-
-Cloudinary Docs
+- Tailwind CSS Documentation
+- Next.js Documentation
+- Prisma Documentation
+- Redux Toolkit Docs
+- Cloudinary Docs
