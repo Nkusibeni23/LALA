@@ -54,16 +54,23 @@ export default function BookingSection({ property }: BookingSectionProps) {
   };
 
   useEffect(() => {
+    console.log("BookedDates state actually updated:", {
+      length: bookedDates.length,
+      data: bookedDates,
+    });
     bookingCountRef.current = bookedDates.length;
   }, [bookedDates]);
 
   const fetchBookedDates = async () => {
     try {
       setIsLoading(true);
+      console.log("Fetching booked dates at:", new Date().toISOString());
 
       const response = await api.get<BookingResponse[]>(
         `/bookings/property/${property.id}`
       );
+
+      console.log("Raw response from API:", response.data);
 
       const activeBookings = response.data
         .filter((booking) => booking.status !== "CANCELLED")
@@ -74,6 +81,7 @@ export default function BookingSection({ property }: BookingSectionProps) {
           status: booking.status,
         }));
 
+      console.log("Setting booked dates:", activeBookings);
       setBookedDates(activeBookings);
     } catch (error) {
       console.error("Error fetching dates:", error);
@@ -109,6 +117,8 @@ export default function BookingSection({ property }: BookingSectionProps) {
         checkOut: date.to.toISOString(),
         totalPrice,
       });
+
+      console.log("Booking response:", response.data);
 
       setRefreshKey((prev) => prev + 1);
 
